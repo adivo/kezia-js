@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>QUnit Testing</title>
+        <link rel="stylesheet" href="http://code.jquery.com/qunit/qunit-1.16.0.css">
+    </head>
+    <body>
+        <div id="qunit"></div>
+        <div id="qunit-fixture"></div>
+        <script src="scripts/class.js"></script>
+        <script src="http://code.jquery.com/qunit/qunit-1.16.0.js"></script>
+        <!-- data-main attribute tells require.js to load common_tests.js after require.js loads. -->
+<!--        <script data-main="scripts/common_tests" src="scripts/require.js"></script>-->
+<script data-main="scripts/test-suite" src="scripts/require.js"></script>
+
+    </body>
+</html>
