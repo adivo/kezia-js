@@ -453,6 +453,7 @@ define(["common", "tags"], function (Common, Tags) {
         itemHeight: 25,
         headerHeight: 25,
         selectedInd: 0,
+        
         /**
          * The following properties can be set:<br>
          * width: the width of the component in pixels<br>
@@ -713,7 +714,7 @@ define(["common", "tags"], function (Common, Tags) {
             return new Tags.Tag('input').id(this.id + '_input').addClass('ComboInput')
                     .addStyle('width', Common.isDef(this.width) ? (this.width - 12) + 'px' : '')
                     .attribute('type', 'text')
-                    .attribute('value', 'Enter your name').asStandalone();// + arrow;
+                    .attribute('value', this.instruction).asStandalone();// + arrow;
         }
     });
 

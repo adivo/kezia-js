@@ -182,6 +182,11 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
                 for (j = 0; j < properties.length; j++) {
                     this[properties[j]] = styleObj[properties[j]];
                 }
+                console.log('\n\nProperties for '+cssClass);
+                var thisProps=Object.getOwnPropertyNames(this);
+                for (j=0;j<thisProps.length;j++){
+                    console.log('this "'+thisProps[j]+'"');
+                }
             }
         };
         this.getId = function () {
@@ -476,7 +481,11 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
         var maxItemCount = 5;
         var itemHeight = 25;
         var headerHeight = 25;
-        var data = [];
+        //public properties. Need to be defined on this. as the property object is copied into this (won't work with var instruction...)
+        this.instruction = 'Beginn typing...';
+        this.width=200;
+        //var data = [];
+        
         /**
          * The following properties can be set:<br>
          * width: the width of the component in pixels<br>
@@ -529,6 +538,13 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
                 console.log(xmlhttp.responseType, xmlhttp.responseText);
 
             });
+        };
+          this.renderInner = function () {
+            pr.registerComponentForAttaching(this);
+            return new Tags.Tag('input').id(this.id + '_input').addClass('ComboInput')
+                    .addStyle('width', Common.isDef(this.width) ? (this.width - 12) + 'px' : '')
+                    .attribute('type', 'text')
+                    .attribute('value', this.instruction).asStandalone();// + arrow;
         };
         var focusListener = function (combo, e) {
             combo.inputEl.value = '';
@@ -654,7 +670,7 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
             var self = this;
             //hide any other pop up
             console.log('this.id=' + this.id);
-            if (Common.isDef(m.popup)){
+            if (Common.isDef(m.popup)) {
                 console.log('m.popup.getBaseComponent().id=' + m.popup.getBaseComponent().id);
             }
             if (Common.isDef(m.popup) && m.popup.getBaseComponent().id !== this.id) {
@@ -704,13 +720,7 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
             return items;
         };
 
-        this.renderInner = function () {
-            pr.registerComponentForAttaching(this);
-            return new Tags.Tag('input').id(this.id + '_input').addClass('ComboInput')
-                    .addStyle('width', Common.isDef(this.width) ? (this.width - 12) + 'px' : '')
-                    .attribute('type', 'text')
-                    .attribute('value', 'Enter your name').asStandalone();// + arrow;
-        };
+      
     });
     m.BaseLayout = m.Component.extend({
         init: function (cssClass, styleObj) {
@@ -1084,7 +1094,7 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
 //            console.log('Counter.init() and c.getCounter()=' + c.getMessage());
         }
         this.specialMessage = function () {
-            console.log('this.addtionalVar=' + this.additionalVar);
+            //console.log('this.addtionalVar=' + this.additionalVar);
             return 'SpecialCounter.specialMessage() with message from parent (this.getMessage()): ' + this.getMessage();
         }
 
