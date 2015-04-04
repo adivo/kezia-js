@@ -4,14 +4,11 @@
  * and open the template in the editor.
  */
 require(["common", "keziajs"], function (common, K) {
-//require(["kezia", "common", "keziajs"], function (k, common, K) {
-     //localArrayWithRendererCombo.privateMethod('Public call - should not work');
+    var rowLayout = new K.RowLayout();
+    rowLayout.setBorderStyleClass('c-paddingBorder');
+
     var localArrayCombo = new K.Combo({
-        width: '300',
-        headerTemplate:
-                ' <div style="width:100px">PLZ</div>' +
-                ' <div style="left:100px;width:150px">Ort</div>' +
-                ' <div style="left:250px;right:0">Icon</div>',
+        headerTemplate: ' <div style="width:100%">Name</div>',
 //        renderItem:function(city){
 //            return '<div style="width:100px">'+city.plz+'</div>' +
 //            '<div style="left:100px">'+city.gemeinde+'</div>' +
@@ -28,8 +25,10 @@ require(["common", "keziajs"], function (common, K) {
         //,
         //remoteService:'http://localhost:8090/cities'
     });
-    
+    rowLayout.addComponent(localArrayCombo, 60, K.WidgetPosition.topLeft);
+
     var localArrayWithRendererCombo = new K.Combo({
+        width: '300',
         instruction: 'Type city',
         headerTemplate:
                 ' <div style="width:100px">PLZ</div>' +
@@ -43,11 +42,43 @@ require(["common", "keziajs"], function (common, K) {
                     ' <svg width="50" height="25"><rect width="' + fields[2] + '" height="10" fill="yellow" style="stroke-width:1;stroke:rgb(0,0,0)" /></svg>' +
                     '</div>';
         },
-        modelType: 'array',
+        modelType: 'csvArray',
         model: ['8617,Mönchaltorf,10', '8620,Wetzikon,20', '8610,Uster,30'],
-        //,
+//,
         //remoteService:'http://localhost:8090/cities'
     });
+    rowLayout.addComponent(localArrayWithRendererCombo, 40, K.WidgetPosition.topLeft);
+
+    //csv with default configuration
+    var csvArrayCombo1_label = new K.Label('Combo with csv array model and default configuration', {
+        width: '300',
+        additionalClass: 'c-InputLabel'});
+    rowLayout.addComponent(csvArrayCombo1_label, 40, K.WidgetPosition.bottomLeft);
+    var csvArrayCombo1 = new K.Combo({
+        width: '300',
+        instruction: 'Type ZIP code',
+        headerTemplate: 'PLZ',
+        modelType: 'csvArray',
+        model: ['8617,Mönchaltorf,10', '8620,Wetzikon,20', '8610,Uster,30'],
+    });
+    rowLayout.addComponent(csvArrayCombo1, 40, K.WidgetPosition.topLeft);
+    
+    
+     //csv with custom field configuration
+    var csvArrayCombo2_label = new K.Label('Combo with csv array model and searchAndDisplayFieldInd=1 configuration', {
+        width: '300',
+        additionalClass: 'c-InputLabel'});
+    rowLayout.addComponent(csvArrayCombo2_label, 40, K.WidgetPosition.bottomLeft);
+    var csvArrayCombo2 = new K.Combo({
+        width: '300',
+        instruction: 'Type ZIP code',
+        headerTemplate: 'PLZ',
+        modelType: 'csvArray',
+        model: ['8617,Mönchaltorf,10', '8620,Wetzikon,20', '8610,Uster,30'],
+        searchAndDisplayFieldInd:1
+    });
+    rowLayout.addComponent(csvArrayCombo2, 40, K.WidgetPosition.topLeft);
+    
     //window.alert(localArrayWithRendererCombo.maxItemCount);
     var counter = new K.Counter('Counter Message');
     counter.up();
@@ -56,7 +87,7 @@ require(["common", "keziajs"], function (common, K) {
     console.log('SpecialCounter.specialMessage():' + specialCounter.specialMessage());
     var specialCounter2 = new K.SpecialCounter2('SpecialCounter2 message');
     console.log('SpecialCounter2.specialMessage():' + specialCounter2.specialMessage());
-   
+
 //    window.alert('K.moduleIdCounter:'+K);
 //                '</div>'});
 //    combo.withArrayModel(['Saab', 'Audi', 'Kia', 'Volvo', 'BMW']);
@@ -95,10 +126,7 @@ require(["common", "keziajs"], function (common, K) {
 //        template: 'PLZ {#7} Ort: {#9} <svg width="100" height="25"><circle cx="50" cy="12" r="10" stroke="green" stroke-width="2" fill="yellow" /></svg>',
 //        csvModel: 'data/PLZ-Schweiz.csv'
 //    });
-    //Layouting
-    var rowLayout = new K.RowLayout();
-    rowLayout.setBorderStyleClass('LabelBorder');
-    rowLayout.addComponent(localArrayWithRendererCombo, 80, K.WidgetPosition.topLeft);
-    rowLayout.addComponent(localArrayCombo, 100, K.WidgetPosition.bottomLeft);
+
+    // Render rowLayout to div with id=app
     K.renderComponents('app', rowLayout);
 });

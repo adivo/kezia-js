@@ -1,6 +1,6 @@
 define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
 
-    //Define module private variables on the private object (which is not exported)
+//Define module private variables on the private object (which is not exported)
     var pr = {};
     pr.privateModuleVar = 'this is a private module var';
     /** Id iterator for widgets*/
@@ -38,7 +38,7 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
     }
 
 
-    //Object to be exported. Define any public object and functions on this object.  
+//Object to be exported. Define any public object and functions on this object.  
     var m = {};
     /** css class names */
     m.css = {
@@ -88,7 +88,7 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
         }
 
     }
-    //Public module based variables
+//Public module based variables
 //    m.moduleIdCounter = 0;
     m.Popup = OO.Class.extend({
         init: function (popupBaseComponent, onClick, onHide) {
@@ -135,7 +135,6 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
             if (Common.isDef(this.popupEl)) {
                 document.body.removeChild(this.popupEl);
                 this.popupEl = undefined;
-
                 if (Common.isDef(this.onHide)) {
                     this.onHide();
                 }
@@ -145,10 +144,8 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
             var inputElBoundingRect = inputEl.getBoundingClientRect();
             var inputElTop = inputElBoundingRect.top;
             var inputElHeight = inputElBoundingRect.height;
-
             this.popupEl.style.left = inputElBoundingRect.left + 'px';
             this.popupEl.style.width = popupWidth + 'px';
-
             var h = window.innerHeight;
             if (h > (inputElTop + inputElHeight + popupHeight)) {
                 //Popup below input field
@@ -182,10 +179,10 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
                 for (j = 0; j < properties.length; j++) {
                     this[properties[j]] = styleObj[properties[j]];
                 }
-                console.log('\n\nProperties for '+cssClass);
-                var thisProps=Object.getOwnPropertyNames(this);
-                for (j=0;j<thisProps.length;j++){
-                    console.log('this "'+thisProps[j]+'"');
+                console.log('\n\nProperties for ' + cssClass);
+                var thisProps = Object.getOwnPropertyNames(this);
+                for (j = 0; j < thisProps.length; j++) {
+                    console.log('this "' + thisProps[j] + '"');
                 }
             }
         };
@@ -213,54 +210,55 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
         };
         this.setBorderStyleClass = function (borderStyleClass) {
             this.borderStyleClass = borderStyleClass;
-        },
-                this.render = function (positionStyles, componentInner) {
-                    Common.logDebug("Render of component id=" + this.id + Common.valueOnCheck(this.name, ' name=' + this.name, ''));
-                    var componentInner, bg, boxShadow;
-                    if (Common.isUndef(componentInner)) {
-                        componentInner = this.renderInner();
-                    }
+        };
+        this.render = function (positionStyles, componentInner) {
+            Common.logDebug("Render of component id=" + this.id + Common.valueOnCheck(this.name, ' name=' + this.name, ''));
+            var componentInner, bg, boxShadow;
+            if (Common.isUndef(componentInner)) {
+                componentInner = this.renderInner();
+            }
 
-                    if (!Common.isUndef(this.borderStyleProperty)) {
-                        //border div as border style properties are set
-                        componentInner = new Tags.Div(componentInner)
-                                .id(this.id + '_b')
-                                .addClass(Common.css.FILL).addClass(this.cssClass)
-                                .addStyle('background', this.backgroundStyleProperty)
-                                .addStyle('border-radius', this.borderRadiusStyleProperty)
-                                .addStyle('border', this.borderStyleProperty)
-                                .addStyle('box-shadow', this.cssBoxShadowStyleProperty)
-                                .render();
-                        this.hasBorderBox = true;
-                    } else if (Common.isDef(this.borderStyleClass)) {
-                        //border div as border style class is set
-                        componentInner = new Tags.Div(componentInner)
-                                .id(this.id + '_b')
-                                .addStyle('background', this.backgroundStyleProperty)
-                                .addStyle('border-radius', this.borderRadiusStyleProperty)
-                                .addClass(this.borderStyleClass)
+            if (!Common.isUndef(this.borderStyleProperty)) {
+                //border div as border style properties are set
+                componentInner = new Tags.Div(componentInner)
+                        .id(this.id + '_b')
+                        .addClass(Common.css.FILL).addClass(this.cssClass)
+                        .addStyle('background', this.backgroundStyleProperty)
+                        .addStyle('border-radius', this.borderRadiusStyleProperty)
+                        .addStyle('border', this.borderStyleProperty)
+                        .addStyle('box-shadow', this.cssBoxShadowStyleProperty)
+                        .render();
+                this.hasBorderBox = true;
+            } else if (Common.isDef(this.borderStyleClass)) {
+                //border div as border style class is set
+                componentInner = new Tags.Div(componentInner)
+                        .id(this.id + '_b')
+                        .addStyle('background', this.backgroundStyleProperty)
+                        .addStyle('border-radius', this.borderRadiusStyleProperty)
+                        .addClass('Border')
+                        .addClass(this.borderStyleClass)
 //                        .addClass(this.cssClass)
-                                .render();
-                        this.hasBorderBox = true;
-                    } else {
-                        // no border defined, so set those attributes in position box
-                        bg = this.backgroundStyleProperty;
-                        // scroll = getScrollingStyle();
-                        this.hasBorderBox = false;
-                    }
-                    //position box
-                    boxShadow = Common.valueOnCheck(this.cssBoxShadowStyleProperty, 'box-shadow:' + this.cssBoxShadowStyleProperty, '');
-                    return new Tags.Div(componentInner).id(this.id + "_p")
-                            .setName(this.name)
-                            .addClass(this.additionalClass)
-                            .addClass(Common.isDef(this.isInResponsiveContainer) ? 'rel' : this.getPositionCssClass())
+                        .render();
+                this.hasBorderBox = true;
+            } else {
+                // no border defined, so set those attributes in position box
+                bg = this.backgroundStyleProperty;
+                // scroll = getScrollingStyle();
+                this.hasBorderBox = false;
+            }
+            //position box
+            boxShadow = Common.valueOnCheck(this.cssBoxShadowStyleProperty, 'box-shadow:' + this.cssBoxShadowStyleProperty, '');
+            return new Tags.Div(componentInner).id(this.id + "_p")
+                    .setName(this.name)
+                    .addClass(this.additionalClass)
+                    .addClass(Common.isDef(this.isInResponsiveContainer) ? 'rel' : this.getPositionCssClass())
 //                    .addClass(this.cssClass + "_")
-                            .addStyle(positionStyles)
-                            .addStyle('background', bg)
-                            .addStyle(boxShadow)
-                            .addStyle('border-radius', this.borderRadiusStyleProperty)
-                            .render();
-                },
+                    .addStyle(positionStyles)
+                    .addStyle('background', bg)
+                    .addStyle(boxShadow)
+                    .addStyle('border-radius', this.borderRadiusStyleProperty)
+                    .render();
+        },
                 this.super_onAttached = function () {
 
                 },
@@ -272,11 +270,12 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
                 }
     });
     /**
-     * @constructor
      * Creates a new Label object.
      * @param {type} text
      * @param {type} styleObj
      * @returns {undefined}
+     * 
+     * @constructor
      */
     m.Label = m.Component.extend({
         horizontalAlign: '',
@@ -378,7 +377,6 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
                     }
                 });
             });
-
         },
         renderInner: function () {
             registerComponentForAttaching(this);
@@ -427,7 +425,6 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
             return '<img src="' + this.url + '" alt="' + Common.valueOrDefault(this.alt, 'define alt for url ' + this.url) + '"\>';
         }
     });
-
     m.BaseEditor = m.Component.extend({
         init: function (cssClass, styleObj) {
             this._super(cssClass, styleObj);
@@ -483,9 +480,17 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
         var headerHeight = 25;
         //public properties. Need to be defined on this. as the property object is copied into this (won't work with var instruction...)
         this.instruction = 'Beginn typing...';
-        this.width=200;
+        this.width = 200;
+        this.model = [];
+        this.isCsvModel = false;
+        this.modelService = undefined;
+        this.cachingMode = 'cacheOnFirstUsage';
+        this.searchAndDisplayFieldInd = 0;
+        this.valueInd = 0;
+        this.displayFunction;
+
         //var data = [];
-        
+
         /**
          * The following properties can be set:<br>
          * width: the width of the component in pixels<br>
@@ -499,23 +504,23 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
         this.init = function (styleObj) {
             this._super('Combo', styleObj);
 
-            if (Common.isUndef(this.renderItem)) {
-                if (modelType === 'csv') {
-                    this.renderItem = function (item) {
-                        return item;
-                    }
-                } else if (modelType === 'array') {
-                    this.renderItem = function (item) {
-                        return item;
-                    }
-                } else if (modelType === 'json') {
-                    this.renderItem = function (item) {
-                        return item;
-                    }
+            if (Common.isUndef(this.displayFunction)) {
+                switch (this.modelType) {
+                    case 'csvArray':
+                        this.renderItem = function (item) {
+                            return item.split(',')[this.searchAndDisplayFieldInd];
+                        }
+                        break;
+                    case 'json':
+                        break;
+                    default:
+                        this.renderItem = function (item) {
+                            return item;
+                        }
                 }
+            } else {
+                this.renderItem = this.displayFunction;
             }
-
-
         };
         this.withTemplate = function (template) {
             this.template = template;
@@ -536,18 +541,18 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
             Common.asyncLoadHtml(restUrl, function (xmlhttp) {
                 self.data = xmlhttp.responseText.split('\n');
                 console.log(xmlhttp.responseType, xmlhttp.responseText);
-
             });
         };
-          this.renderInner = function () {
+        this.renderInner = function () {
             pr.registerComponentForAttaching(this);
             return new Tags.Tag('input').id(this.id + '_input').addClass('ComboInput')
                     .addStyle('width', Common.isDef(this.width) ? (this.width - 12) + 'px' : '')
                     .attribute('type', 'text')
-                    .attribute('value', this.instruction).asStandalone();// + arrow;
+                    .attribute('value', this.instruction).asStandalone(); // + arrow;
         };
         var focusListener = function (combo, e) {
-            combo.inputEl.value = '';
+            combo.inputEl.value = Common.isDef(combo.displayValue)?combo.displayValue:'';
+            combo.inputEl.select();
         }
         var keyUpListener = function (combo, e) {
             var keyCode = e.keyCode;
@@ -564,6 +569,7 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
                     combo.selectedItemInd++;
                 }
             }
+            combo.inputEl.select();
 //                if (Common.isDef(self.data)) {
             var popupInnerHtml = '';
             var top = 0;
@@ -573,7 +579,6 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
             }
             var searchCriteria = combo.inputEl.value.toLowerCase();
             console.log('Look out for "' + searchCriteria + "'");
-
             //implement remote data
             if (Common.isDef(combo.remoteService)) {
                 Common.asyncLoadJsonFile(combo.remoteJsonService + '?searchCriteria='
@@ -588,7 +593,6 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
                 combo.matches = combo.findMatches(combo.model, searchCriteria, combo.offset);
                 popupInnerHtml += combo.renderMatches(combo.matches, top);
                 combo.renderPopup(combo.inputEl, popupInnerHtml, combo.matches.length);
-
             }
 //                    console.log('Search finished');
 //                   self.renderPopup(self.el,items);
@@ -648,7 +652,6 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
 //                }
 //            });
         };
-
         this.findMatches = function (model, containsCriteria, offset) {
             var ind = 0;
             var resultInd = 0;
@@ -682,13 +685,15 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
                     console.log('Click on ' + event.target.outerHTML + ' idElement=' + idElement.id);
                     var ind = idElement.id.replace(/(I[\d]*_comboItem_)/i, '');
                     self.selection = self.matches[ind];
+                    self.displayValue=self.renderItem(self.matches[ind]);
                     m.popup.hide();
                     m.popup = undefined;
                     console.log('Combo item ind=' + ind);
                 };
                 var onHide = function () {
                     if (Common.isDef(self.selection)) {
-                        self.inputEl.value = self.selection;
+//                        self.inputEl.value = self.selection;
+                         self.inputEl.value = self.displayValue;
                     }
                     m.popup = undefined;
                 };
@@ -697,7 +702,6 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
             var popupHeight = headerHeight + itemsCount * itemHeight;
             m.popup.render(inputEl, this.width, popupHeight, popupInnerHTML);
         };
-
         this.renderMatches = function (matches, top) {
             var items = '';
             var itemsCount = 0;
@@ -713,21 +717,20 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
                         .render();
                 if (i === this.selectedItemInd) {
                     this.selection = matches[i];
+                    this.displayValue=this.renderItem(matches[i]);
                 }
                 itemsCount++;
                 top += itemHeight;
             }
             return items;
         };
-
-      
     });
     m.BaseLayout = m.Component.extend({
         init: function (cssClass, styleObj) {
             this._super(cssClass, styleObj);
             this.components = [];
             this.componentsLayoutData = [];
-            this.padding = 5;
+            this.padding = 0;
         },
         onAttached: function () {
             Common.logInfo("OnAttached of component id=" + this.id + Common.valueOnCheck(this.name, ' name=' + this.name, ''));
@@ -737,7 +740,7 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
                 Common.logDebug("OnAttached of component id=" + this.id + Common.valueOnCheck(this.name, ' name=' + this.name, '') +
                         ' on attached width=' + el.clientWidth + ' height=' + el.offsetHeight);
             }
-            var el = document.getElementById(this.id + '_p');
+            var el = document.getElementById(this.id + '_b');
             if (Common.isDef(el)) {
                 Common.logDebug("OnAttached of component id=" + this.id + Common.valueOnCheck(this.name, ' name=' + this.name, ''));
                 Common.logDebug("OnAttached of component id=" + this.id + Common.valueOnCheck(this.name, ' name=' + this.name, '') +
@@ -964,7 +967,6 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
         show: function () {
             m.modalOverlayId = this.id + '_overlay';
             m.modalDialogId = this.id + '_panel';
-
             var overlay = document.createElement('div');
             overlay.className = Common.css.MODAL_OVERLAY;
             overlay.id = m.modalOverlayId;
@@ -1063,7 +1065,6 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
         // private instance variables
         var count = 0;
         var message;
-
         //Constructor
         this.init = function (message_) {
             m.moduleIdCounter++;
@@ -1105,7 +1106,6 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
         this.init = function (message) {
             //Call the super constructor
             this._super(message);
-
 //            var c = new m.Counter('Counter message from Counter called from inside child object');
 //            console.log('SpecialCounter2.init() and c.getMessage()=' + c.getMessage());
         }
