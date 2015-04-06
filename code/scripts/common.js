@@ -41,7 +41,7 @@ define('common', function () {
         },
         logLevel: 'info',
         Defaults: {
-            widgetWidth: 120,
+            widgetWidth: 180,
             widgetHeight: 30,
             slotWidth: 200
         },

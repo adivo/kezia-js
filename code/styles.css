@@ -121,11 +121,17 @@ box-shadow:         0px 2px 5px 0px rgba(158, 158, 158, 0.75);
     
     width: 288px;
 }
-.ComboHeader>div{
+.ComboHeader>div,.ComboItem>div{
     position:absolute;
+    overflow:hidden;
     top:4px;
-    bottom:0;
-    padding-left:4px;
+    bottom: 4px;
+    left: 4px;
+    right: 4px;
+}
+.ComboHeader>div>div,.ComboItem>div>div{
+    position:absolute;
+    overflow:hidden;
 }
 .ComboItems,.ComboItem{
     position:absolute;
@@ -133,8 +139,15 @@ box-shadow:         0px 2px 5px 0px rgba(158, 158, 158, 0.75);
 }
 .ComboItem{
     width:100%;
-    border-bottom:1px solid #a0a0a0
+    border-bottom:1px solid #a0a0a0;
 }
+.ComboItem:hover{
+    background:#d0d0d0;
+}
+.ComboItemInner{
+    /* padding:5px; */
+}
+
 .ComboItemSelected{
     background-color: #197de1;
     background-image: -webkit-linear-gradient(top, #1b87e3 2%, #166ed5 98%);
@@ -142,12 +155,7 @@ box-shadow:         0px 2px 5px 0px rgba(158, 158, 158, 0.75);
     color: #ecf2f8;
     text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.05);
 }
-.ComboItem>div{
-    position:absolute;
-    top:4px;
-    bottom:0;
-    padding-left:4px;
-}
+
 
 /*body {
     -webkit-font-smoothing: subpixel-antialiased;

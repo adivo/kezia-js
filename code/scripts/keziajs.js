@@ -86,8 +86,14 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
             element.innerHTML = component.render('top:0;left:0;bottom:0;right:0');
             pr.attachRegisteredComponents();
         }
-
-    }
+    };
+    m.refreshComponent = function (component) {
+        var element = document.getElementById(component.id + '_p');
+        if (Common.isDef(element)) {
+            element.innerHTML = component.renderInsidePositionBox()[0];
+            pr.attachRegisteredComponents();
+        }
+    };
 //Public module based variables
 //    m.moduleIdCounter = 0;
     m.Popup = OO.Class.extend({
@@ -211,9 +217,9 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
         this.setBorderStyleClass = function (borderStyleClass) {
             this.borderStyleClass = borderStyleClass;
         };
-        this.render = function (positionStyles, componentInner) {
+        this.renderInsidePositionBox = function () {
             Common.logDebug("Render of component id=" + this.id + Common.valueOnCheck(this.name, ' name=' + this.name, ''));
-            var componentInner, bg, boxShadow;
+            var componentInner, bg;
             if (Common.isUndef(componentInner)) {
                 componentInner = this.renderInner();
             }
@@ -246,8 +252,48 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
                 // scroll = getScrollingStyle();
                 this.hasBorderBox = false;
             }
+            return [componentInner, bg];
+        };
+        this.render = function (positionStyles) {
+//            Common.logDebug("Render of component id=" + this.id + Common.valueOnCheck(this.name, ' name=' + this.name, ''));
+//            var componentInner, bg;
+//            if (Common.isUndef(componentInner)) {
+//                componentInner = this.renderInner();
+//            }
+//
+//            if (!Common.isUndef(this.borderStyleProperty)) {
+//                //border div as border style properties are set
+//                componentInner = new Tags.Div(componentInner)
+//                        .id(this.id + '_b')
+//                        .addClass(Common.css.FILL).addClass(this.cssClass)
+//                        .addStyle('background', this.backgroundStyleProperty)
+//                        .addStyle('border-radius', this.borderRadiusStyleProperty)
+//                        .addStyle('border', this.borderStyleProperty)
+//                        .addStyle('box-shadow', this.cssBoxShadowStyleProperty)
+//                        .render();
+//                this.hasBorderBox = true;
+//            } else if (Common.isDef(this.borderStyleClass)) {
+//                //border div as border style class is set
+//                componentInner = new Tags.Div(componentInner)
+//                        .id(this.id + '_b')
+//                        .addStyle('background', this.backgroundStyleProperty)
+//                        .addStyle('border-radius', this.borderRadiusStyleProperty)
+//                        .addClass('Border')
+//                        .addClass(this.borderStyleClass)
+////                        .addClass(this.cssClass)
+//                        .render();
+//                this.hasBorderBox = true;
+//            } else {
+//                // no border defined, so set those attributes in position box
+//                bg = this.backgroundStyleProperty;
+//                // scroll = getScrollingStyle();
+//                this.hasBorderBox = false;
+//            }
+            var insidePositionBox = this.renderInsidePositionBox();
+            var bg = insidePositionBox[1];
+            var componentInner = insidePositionBox[0];
             //position box
-            boxShadow = Common.valueOnCheck(this.cssBoxShadowStyleProperty, 'box-shadow:' + this.cssBoxShadowStyleProperty, '');
+            var boxShadow = Common.valueOnCheck(this.cssBoxShadowStyleProperty, 'box-shadow:' + this.cssBoxShadowStyleProperty, '');
             return new Tags.Div(componentInner).id(this.id + "_p")
                     .setName(this.name)
                     .addClass(this.additionalClass)
@@ -258,16 +304,16 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
                     .addStyle(boxShadow)
                     .addStyle('border-radius', this.borderRadiusStyleProperty)
                     .render();
-        },
-                this.super_onAttached = function () {
+        };
+        this.super_onAttached = function () {
 
-                },
-                this.registerDragHandler = function (dragHandler) {
-                    this.dragHandler = dragHandler;
-                },
-                this.getPositionCssClass = function () {
-                    return (this.overflowVisible ? Common.css.ABS_OVERFLOW_VISIBLE : Common.css.ABS) + Common.valueOrDefault(this.positionCssClass, '');
-                }
+        };
+        this.registerDragHandler = function (dragHandler) {
+            this.dragHandler = dragHandler;
+        };
+        this.getPositionCssClass = function () {
+            return (this.overflowVisible ? Common.css.ABS_OVERFLOW_VISIBLE : Common.css.ABS) + Common.valueOrDefault(this.positionCssClass, '');
+        }
     });
     /**
      * Creates a new Label object.
@@ -293,6 +339,10 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
             this.overflowVisible = true;
             //this.horizontalAlign=Common.HorizontalPosition.LEFT;
         },
+        setValue: function (text) {
+            this.text = text;
+            m.refreshComponent(this);
+        },
         setHorizontalAlign: function (horizontalAlign) {
             this.horizontalAlign = horizontalAlign;
             return this;
@@ -300,7 +350,7 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
         onAttached: function () {
         },
         renderInner: function () {
-            //registerComponentForAttaching(this);
+            //pr.registerComponentForAttaching(this);
             return new Tags.Div(this.text).addClass(this.cssClass).addClass(this.horizontalAlign).render();
         },
         /**
@@ -379,7 +429,7 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
             });
         },
         renderInner: function () {
-            registerComponentForAttaching(this);
+            pr.registerComponentForAttaching(this);
             return '';
         }
     });
@@ -404,7 +454,7 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
             }
         },
         renderInner: function () {
-            registerComponentForAttaching(this);
+            pr.registerComponentForAttaching(this);
             return '<button id="' + this.id + '_e">' + this.text + '</button>';
         }
     });
@@ -469,16 +519,81 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
             });
         },
         renderInner: function () {
-            registerComponentForAttaching(this);
+            pr.registerComponentForAttaching(this);
             var userFeedback = new Tags.Div('').id(this.id + '_uf').addClass('input_uf').render();
             return '<input id="' + this.id + '_input" value="Enter your name"></input>' + userFeedback;
         }
     })
+    /**
+     * The following properties can be set:<br>
+     * width: the width of the component in pixels<br>
+     * height: the height of the component in pixels<br>
+     * template: <br>
+     * headerTemplate:<br>
+     * 
+     * @param {type} styleObj
+     * @returns {undefined}
+     */
     m.Combo = m.Component.extend(new function () {
         var maxItemCount = 5;
-        var itemHeight = 25;
         var headerHeight = 25;
+        var onValueChanged = function (combo) {
+            if (Common.isDef(combo.selection)) {
+                combo.inputEl.value = combo.inputValue;
+                if (Common.isDef(combo.valueChangeListener)) {
+                    combo.valueChangeListener();
+                }
+            }
+        };
+        var setValues = function (combo, jsonItemMatch) {
+            if (Common.isDef(jsonItemMatch)) {
+                combo.selection = jsonItemMatch;
+                combo.inputValue = combo.inputValueGenerator(combo, jsonItemMatch);
+            }
+        };
+        var defaultInputValueGenerator = function (combo, item) {
+            return item["v"][combo.searchAndDisplayFieldInd];
+        };
+        //would use the following regex ({item\[\"\w*\"\]})|({item\[\"\w*\"\]\[\d*\]})
+        //to match templates like this: <div class="ComboItemInner">{item["v"][0]}>{item["v"]}</div>
+        var defaultItemRendererTempl = '<div class="ComboItemInner">{item["v"][0]}</div>';
+//        var defaultCsvInputValueGenerator = function (combo,item) {
+//            return item.split(',')[this.searchAndDisplayFieldInd];
+//        };
+        var defaultItemRenderer = function (combo, item) {
+            return '<div class="ComboItemInner">' + item["v"][combo.searchAndDisplayFieldInd] + '</div>';
+        };
+
+        var defaultItemMatcher = function (combo, item, searchCriteria) {
+            return item["v"][combo.searchAndDisplayFieldInd].toLowerCase().indexOf(searchCriteria);
+        }
+        /**
+         * Converts an array or csv string array (separated with this.csvArraySeparator) to a json object, adding an id, which
+         * is here the index of each array item.
+         * @param {type} combo
+         * @returns {undefined}
+         */
+        var convertModelToJsonModel = function (combo) {
+            if (Common.isDef(combo.model)) {
+//            if (Common.isDef(combo.model) && (combo.modelType === 'array' || combo.modelType === 'csvArray')) {
+
+                combo.jsonModel = [];
+                for (var i = 0; i < combo.model.length; i++) {
+//                    if (combo.modelType === 'array') {
+//                        combo.jsonModel[i] = {id: i, "v": [combo.model[i]]};
+//                    } else {
+                    var item = combo.model[i];
+                    var itemArray = item.split(combo.csvArraySeparator);
+
+                    combo.jsonModel[i] = {id: i, "v": itemArray};
+//                        combo.jsonModel[i] = {id: i, "v": combo.model[i].split(combo.csvArraySeparator)};
+//                    }
+                }
+            }
+        }
         //public properties. Need to be defined on this. as the property object is copied into this (won't work with var instruction...)
+        this.itemHeight = 25;
+        this.csvArraySeparator = ';';
         this.instruction = 'Beginn typing...';
         this.width = 200;
         this.model = [];
@@ -487,9 +602,25 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
         this.cachingMode = 'cacheOnFirstUsage';
         this.searchAndDisplayFieldInd = 0;
         this.valueInd = 0;
-        this.displayFunction;
+        this.referenceInd = 0;
+        this.valueChangeListener;
 
-        //var data = [];
+        this.modelService;
+        /**
+         * Function to generate the value to write into the input element from a given json object item. 
+         * Signature: function (combo, item){}. Returns the value as string (no html).
+         */
+        this.inputValueGenerator;
+        /**
+         * Function to render a json object item. Signature: function (combo, item){}. Returns the item a html.
+         */
+        this.itemRenderer;
+        /**
+         * Function to match a search criteria against an item. Signature: function (combo, item, searchCriteria) {}. Returns the location 
+         * of the match (-1 if no match occured).
+         */
+        this.itemMatcher;
+        //this.displayFn;
 
         /**
          * The following properties can be set:<br>
@@ -504,23 +635,28 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
         this.init = function (styleObj) {
             this._super('Combo', styleObj);
 
-            if (Common.isUndef(this.displayFunction)) {
-                switch (this.modelType) {
-                    case 'csvArray':
-                        this.renderItem = function (item) {
-                            return item.split(',')[this.searchAndDisplayFieldInd];
-                        }
-                        break;
-                    case 'json':
-                        break;
-                    default:
-                        this.renderItem = function (item) {
-                            return item;
-                        }
-                }
-            } else {
-                this.renderItem = this.displayFunction;
+            convertModelToJsonModel(this);
+
+            if (Common.isUndef(this.itemRenderer)) {
+                this.itemRenderer = defaultItemRenderer;
             }
+
+            if (Common.isUndef(this.inputValueGenerator)) {
+                this.inputValueGenerator = defaultInputValueGenerator;
+            }
+
+            if (Common.isUndef(this.itemMatcher)) {
+                this.itemMatcher = defaultItemMatcher;
+            }
+        };
+        this.getValue = function () {
+            return this.inputValue;
+        };
+        this.getValueId = function () {
+            return this.selection["id"];
+        };
+        this.getValueItem = function () {
+            return this.selection;
         };
         this.withTemplate = function (template) {
             this.template = template;
@@ -531,7 +667,9 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
         this.loadModel = function (restUrl) {
             var self = this;
             Common.asyncLoadJsonFile(restUrl, function (xmlhttp) {
-                self.data = xmlhttp.responseText.split('\n');
+                self.model = JSON.parse(xmlhttp.responseText.split(','));
+                convertModelToJsonModel(self);
+//                self.jsonModel = JSON.parse(xmlhttp.responseText);//.split('\n');
 //                console.log(xmlhttp.responseType, xmlhttp.responseText);
 
             });
@@ -551,11 +689,19 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
                     .attribute('value', this.instruction).asStandalone(); // + arrow;
         };
         var focusListener = function (combo, e) {
-            combo.inputEl.value = Common.isDef(combo.displayValue)?combo.displayValue:'';
-            combo.inputEl.select();
-        }
+            combo.inputEl.value = Common.isDef(combo.inputValue) ? combo.inputValue : '';
+        };
+        var focusLostListener = function (combo, e) {
+            if (Common.isDef(m.popup)) {
+                setValues(combo, combo.matches[combo.selectedItemInd]);
+                m.popup.hide();
+                m.popup = undefined;
+            }
+            combo.inputEl.value = Common.isDef(combo.inputValue) ? combo.inputValue : combo.instruction;
+        };
         var keyUpListener = function (combo, e) {
             var keyCode = e.keyCode;
+            console.log('key up:' + keyCode);
             if (keyCode === 38) {//arrow up
                 if (combo.selectedItemInd > 0) {
                     combo.selectedItemInd--;
@@ -569,15 +715,18 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
                     combo.selectedItemInd++;
                 }
             }
-            combo.inputEl.select();
-//                if (Common.isDef(self.data)) {
+            searchAndRenderPopup(combo);
+        };
+        var searchAndRenderPopup = function (combo) {
             var popupInnerHtml = '';
             var top = 0;
+
             if (Common.isDef(combo.headerTemplate)) {
-                popupInnerHtml += '<div class="ComboHeader">' + combo.headerTemplate + '</div>';
-                top = itemHeight;
+                popupInnerHtml += '<div class="ComboHeader"><div>' + combo.headerTemplate + '</div></div>';
+                top = combo.itemHeight;
             }
-            var searchCriteria = combo.inputEl.value.toLowerCase();
+
+            var searchCriteria = combo.inputEl.value.toLowerCase().trim();
             console.log('Look out for "' + searchCriteria + "'");
             //implement remote data
             if (Common.isDef(combo.remoteService)) {
@@ -585,14 +734,16 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
                         + searchCriteria + '&maxItems=' + maxItemCount + '&offset=' + combo.offset, function (xmlhttp) {
                             console.log(xmlhttp.responseText);
                             //Todo: render with json object
-                            popupInnerHtml += combo.renderMatches(combo.matches, top);
-                            combo.renderPopup(combo.inputEl, popupInnerHtml, combo.matches.length);
+                            popupInnerHtml += combo.renderMatches(combo, combo.matches, top);
+//                            combo.renderPopup(combo.inputEl, popupInnerHtml, combo.matches.length);
+                            renderPopup(combo, popupInnerHtml);
                         });
-            } else if (Common.isDef(combo.model)) {
+            } else if (Common.isDef(combo.jsonModel)) {
                 //console.log('model typeof array?' + (self.model instanceof Array));
-                combo.matches = combo.findMatches(combo.model, searchCriteria, combo.offset);
-                popupInnerHtml += combo.renderMatches(combo.matches, top);
-                combo.renderPopup(combo.inputEl, popupInnerHtml, combo.matches.length);
+                combo.matches = combo.findMatches(combo.jsonModel, searchCriteria, combo.offset);
+                popupInnerHtml += combo.renderMatches(combo, combo.matches, top);
+                renderPopup(combo, popupInnerHtml);
+                //combo.renderPopup(combo.inputEl, popupInnerHtml, combo.matches.length);
             }
 //                    console.log('Search finished');
 //                   self.renderPopup(self.el,items);
@@ -600,65 +751,31 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
         };
         this.onAttached = function () {
             var self = this;
+            if (Common.isDef(self.modelService)) {
+                self.loadModel(this.modelService);
+            }
             this.selectedItemInd = 0;
             this.offset = 0;
             this.inputEl = document.getElementById(self.id + '_input');
+
             this.inputEl.addEventListener('keyup', function (e) {
                 keyUpListener(self, e);
             });
             this.inputEl.addEventListener('focus', function (e) {
                 focusListener(self, e);
             });
-//            self.inputEl.addEventListener('keyup', function (e) {
-//                var keyCode = e.keyCode;
-//                if (keyCode === 38) {//arrow up
-//                    if (self.selectedItemInd > 0) {
-//                        self.selectedItemInd--;
-//                    } else {
-//                        self.offset--;
-//                    }
-//                } else if (keyCode === 40) { //arrow down
-//                    if (self.selectedItemInd >= (maxItemCount - 1)) {
-//                        self.offset++;
-//                    } else {
-//                        self.selectedItemInd++;
-//                    }
-//                }
-////                if (Common.isDef(self.data)) {
-//                var items = '';
-//                var top = 0;
-//                if (Common.isDef(self.headerTemplate)) {
-//                    items += '<div class="ComboHeader">' + self.headerTemplate + '</div>';
-//                    top = itemHeight;
-//                }
-//                var searchCriteria = self.inputEl.value.toLowerCase();
-//                console.log('Look out for "' + searchCriteria + "'");
-//
-//                //implement remote data
-//                if (Common.isDef(self.remoteService)) {
-//                    Common.asyncLoadJsonFile(self.remoteJsonService + '?searchCriteria='
-//                            + searchCriteria + '&maxItems=' + maxItemCount + '&offset=' + self.offset, function (xmlhttp) {
-//                                console.log(xmlhttp.responseText);
-//                                //Todo: render with json object
-//                                items += self.renderMatches(matches, top);
-//                                self.renderPopup(self.inputEl, items, matches.length);
-//                            });
-//                } else if (Common.isDef(self.model)) {
-//                    //console.log('model typeof array?' + (self.model instanceof Array));
-//                    self.matches = self.findMatches(self.model, searchCriteria, self.offset);
-//                    items += self.renderMatches(self.matches, top);
-//                    self.renderPopup(self.inputEl, items, self.matches.length);
-//
-//                }
-//            });
+            this.inputEl.addEventListener('blur', function (e) {
+                focusLostListener(self, e);
+            });
+
         };
-        this.findMatches = function (model, containsCriteria, offset) {
+        this.findMatches = function (jsonModel, containsCriteria, offset) {
             var ind = 0;
             var resultInd = 0;
             var resultSet = [];
-            while (ind < model.length && resultInd < maxItemCount) {
-                var item = model[ind];
-                if (item.toLowerCase().indexOf(containsCriteria) >= 0) {
+            while (ind < jsonModel.length && resultInd < maxItemCount) {
+                var item = jsonModel[ind];
+                if (this.itemMatcher(this, item, containsCriteria) >= 0) {
                     if (offset <= 0) {
                         resultSet[resultInd++] = item;
                     } else {
@@ -667,60 +784,53 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
                 }
                 ind++;
             }
+            console.log('findMatches searched '+ind+' items');
             return resultSet;
-        };
-        this.renderPopup = function (inputEl, popupInnerHTML, itemsCount) {
-            var self = this;
+        }
+        var renderPopup = function (combo, popupInnerHTML) {
             //hide any other pop up
-            console.log('this.id=' + this.id);
-            if (Common.isDef(m.popup)) {
-                console.log('m.popup.getBaseComponent().id=' + m.popup.getBaseComponent().id);
-            }
             if (Common.isDef(m.popup) && m.popup.getBaseComponent().id !== this.id) {
                 m.popup.hide();
                 m.popup = undefined;
             }
+
             if (Common.isUndef(m.popup)) {
                 var onClick = function (event, idElement) {
                     console.log('Click on ' + event.target.outerHTML + ' idElement=' + idElement.id);
                     var ind = idElement.id.replace(/(I[\d]*_comboItem_)/i, '');
-                    self.selection = self.matches[ind];
-                    self.displayValue=self.renderItem(self.matches[ind]);
+                    setValues(combo, combo.matches[ind]);
                     m.popup.hide();
                     m.popup = undefined;
                     console.log('Combo item ind=' + ind);
                 };
                 var onHide = function () {
-                    if (Common.isDef(self.selection)) {
-//                        self.inputEl.value = self.selection;
-                         self.inputEl.value = self.displayValue;
-                    }
+                    onValueChanged(combo);
                     m.popup = undefined;
                 };
                 m.popup = new m.Popup(this, onClick, onHide);
             }
-            var popupHeight = headerHeight + itemsCount * itemHeight;
-            m.popup.render(inputEl, this.width, popupHeight, popupInnerHTML);
+            var itemsCount = combo.matches.length;
+            var popupHeight = headerHeight + itemsCount * combo.itemHeight;
+            m.popup.render(combo.inputEl, combo.width, popupHeight, popupInnerHTML);
         };
-        this.renderMatches = function (matches, top) {
+
+        this.renderMatches = function (combo, matches, top) {
             var items = '';
             var itemsCount = 0;
             for (var i = 0; i < matches.length; i++) {
-                var rendered = '';
-                rendered = this.renderItem(matches[i]);
+                var rendered = '<div>' + combo.itemRenderer(combo, matches[i]) + '</div>';
                 items += new Tags.Div(rendered)
-                        .id(this.id + '_comboItem_' + i)
+                        .id(combo.id + '_comboItem_' + i)
                         .addClass('ComboItem')
-                        .addClass(i === this.selectedItemInd ? 'ComboItemSelected' : '')
+                        .addClass(i === combo.selectedItemInd ? 'ComboItemSelected' : '')
                         .addStyle('top', top + 'px')
-                        .addStyle('height', itemHeight + 'px')
+                        .addStyle('height', combo.itemHeight + 'px')
                         .render();
-                if (i === this.selectedItemInd) {
-                    this.selection = matches[i];
-                    this.displayValue=this.renderItem(matches[i]);
+                if (i === combo.selectedItemInd) {
+                    setValues(combo, matches[i]);
                 }
                 itemsCount++;
-                top += itemHeight;
+                top += combo.itemHeight;
             }
             return items;
         };
@@ -923,7 +1033,7 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
             this.componentsLayoutData[this.componentsLayoutData.length] = new LaneLayoutData(slotSize, widgetPosition, slotBgStyle);
         },
         renderInner: function () {
-            registerComponentForAttaching(this);
+            pr.registerComponentForAttaching(this);
             return this.renderInnerOnAttached();
         },
         addSlotClassAndStyles: function (div, slotPos, slotSize, isLastLane, slotInd) {
@@ -1044,7 +1154,7 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
         onAttached: function () {
         },
         renderInner: function () {
-            registerComponentForAttaching(this);
+            pr.registerComponentForAttaching(this);
             var inner = '';
             if (Common.isDef(this.iconUrl)) {
                 var icon = new Tags.Tag('img')

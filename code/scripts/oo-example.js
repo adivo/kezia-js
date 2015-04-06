@@ -5,18 +5,51 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
     private.privateModuleVar = 'this is a private module var';
 
     //Object to be exported. Define any public object and functions on this object.  
-    var m = {};
+    var m = {}
+    /**
+     * Car class.
+     * Car constructor
+     * @param {type} brand_
+     * @returns {undefined}
+     */
+    m.Car = OO.Class.extend(new function () {
+        var brand;
+        /**
+         * Car constructor
+         * @param {type} brand_
+         * @returns {undefined}
+         */
+        this.init = function (brand_) {
+            brand = brand_;
+        }
+        /**
+         * Returns the brand
+         * @returns {brand_}
+         */
+        this.getBrand = function () {
+
+            return brand;
+        }
+    });
+    m.BMW = m.Car.extend(new function () {
+        this.init = function (brand_) {
+            this._super('BMW');
+        }
+
+    });
     m.moduleIdCounter = 0;
     m.publicModuleVar = 'this is a public module var';
+
+
 
     m.Counter = OO.Class.extend(new function () {
         // private instance variables
         var count = 0;
         var message;
-        
+
         //public instance variables
-        this.privateInstanceVar='privateInstanceVar';
-        
+        this.privateInstanceVar = 'privateInstanceVar';
+
         //Constructor
         this.init = function (message_) {
             m.moduleIdCounter++;
@@ -33,9 +66,9 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
         };
         this.getMessage = function () {
             //this.coutn is not accessible here
-            console.log('Is count accessible from Counter.getMessage() with this.count?'+this.count+' --> no');
-            console.log('Is count accessible from Counter.getMessage() with count?'+count+' --> yes');
-            
+            console.log('Is count accessible from Counter.getMessage() with this.count?' + this.count + ' --> no');
+            console.log('Is count accessible from Counter.getMessage() with count?' + count + ' --> yes');
+
             return message + ' obj.publicModuleVar=' + m.publicModuleVar;
         }
     });
@@ -46,17 +79,17 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
             //Call the super constructor
             this._super('SpecialCounter message from child');
             //Create an additional private instance variable, accessibly with this.additionalVar
-            this.additionalVar='addtional';
+            this.additionalVar = 'addtional';
             window.alert('init SepcialCounter');
             var c = new m.Counter('inner counter');
             window.alert('instantiated Counter from inside module:' + c.getMessage());
             console.log(' private.privateModuleVar=' + private.privateModuleVar);
-            console.log('init SpecialCounter#privateInstanceVar='+this.privateInstanceVar);
+            console.log('init SpecialCounter#privateInstanceVar=' + this.privateInstanceVar);
             //Count is defined with var in parent (Counter) but is not accessible with this.count
-            console.log('Is count accessible from SpecialCounter object with this.count?'+this.count+' --> no');
+            console.log('Is count accessible from SpecialCounter object with this.count?' + this.count + ' --> no');
             //does not work
             //console.log('Is count accessible from SpecialCounter object with count?'+count);
-            
+
         };
         this.specialMessage = function () {
             window.alert('Special message with super var ' + this.getMessage());
@@ -74,7 +107,7 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
 //            console.log('SpecialCounter2.init() and c.getMessage()=' + c.getMessage());
         }
         this.specialMessage = function () {
-            console.log('specialMessage SpecialCounter2#privateInstanceVar='+this.privateInstanceVar);
+            console.log('specialMessage SpecialCounter2#privateInstanceVar=' + this.privateInstanceVar);
             return 'SpecialCounter2.specialMessage() with message from parent (this.getMessage()) ' + this.getMessage();
         }
 
