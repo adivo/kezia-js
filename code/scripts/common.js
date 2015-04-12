@@ -16,7 +16,8 @@ define('common', function () {
             DIALOG_CONTENT: 'dialog_content',
             MODAL_OVERLAY: 'modal_overlay',
             MODAL_TRANSPARENT_OVERLAY: 'transp-overlay',
-            DIALOG: 'dialog'
+            DIALOG: 'dialog',
+            LOADER:'Loader'
         },
         WidgetPosition: {
             topFill: ['top', 'fill'],

@@ -1,5 +1,5 @@
 define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
-
+//require(["class_require-mod","common", "tags","keziajs-charts"], function (OO, Common, Tags,Charts) {
 //Define module private variables on the private object (which is not exported)
     var pr = {};
     pr.privateModuleVar = 'this is a private module var';
@@ -9,6 +9,7 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
     pr.modulePopupIdIterator = 0;
     /** Array to store the components which must run the onAttached method after all components have been attached to the DOM tree*/
     pr.componentsToAttach = [];
+    pr.loaderElement;
     /** Used to store the id of the one and only overlay div*/
     pr.modalOverlayId = '';
     /* Used to store the id of the dialog attached on top of the overlay */
@@ -94,33 +95,55 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
             pr.attachRegisteredComponents();
         }
     };
+
+    m.showLoader = function () {
+        if (Common.isUndef(pr.loaderElement)) {
+            pr.loaderElement = document.createElement('div');
+            pr.loaderElement.className = Common.css.ABS + ' ' + Common.css.LOADER;
+            pr.loaderElement.id = 'Loading';
+            pr.loaderElement.innerHTML = '<div id="loader" class="loader"><div id="loaderPart1" class="loaderPart1"></div><div id="loaderPart2" class="loaderPart2"></div></div>';
+            document.body.appendChild(pr.loaderElement);
+
+            var loaderPart1 = document.getElementById('loaderPart1');
+            loaderPart1.className = 'loaderPart1 loaderPart1Anim';
+            var loaderPart2 = document.getElementById('loaderPart2');
+            loaderPart2.className = 'loaderPart2 loaderPart2Anim';
+
+//            window.setTimeout(function () {
+//                loaderPart1.className = 'loaderPart1';
+//                loaderPart2.className = 'loaderPart2';
+//            }, 100);
+        }
+    };
+    m.hideLoader = function () {
+        if (Common.isDef(pr.loaderElement)) {
+
+            document.body.removeChild(pr.loaderElement);
+//            loaderPart1.className = 'loaderPart1';
+//            loaderPart2.className = 'loaderPart2';
+            pr.loaderElement = undefined;
+        }
+    };
 //Public module based variables
-//    m.moduleIdCounter = 0;
-    m.Popup = OO.Class.extend({
-        init: function (popupBaseComponent, onClick, onHide) {
-            this.create();
+
+    m.Popup = OO.Class.extend(new function () {
+
+        this.init = function (popupBaseComponent, onClick, onHide) {
+            create(this);
             this.popupBaseComponent = popupBaseComponent;
             this.onHide = onHide;
             this.onClick = onClick;
-        },
-        getBaseComponent: function () {
+        };
+        this.getBaseComponent = function () {
             return this.popupBaseComponent;
-        },
-        create: function () {
-            this.popupEl = document.createElement('div');
-            this.popupEl.className = Common.css.ABS + ' ' + Common.css.POPUP;
-            this.popupEl.id = 'Popup_' + pr.modulePopupIdIterator++;
-            document.body.appendChild(this.popupEl);
-            var self = this;
-            document.addEventListener('click', function (event) {
-                console.info('Event on document ' + ' id=' + event.target.id + ' clickEvent:\n' + event.target.outerHTML.substring(0, 200));
-                if (Common.isDef(event.target.id) && event.target.id !== self.id + '_input') {
-                    console.log('Hide popup for element ' + self.id + '_input');
-                    self.hide();
-                }
-            });
-            this.popupEl.addEventListener('click', function (event) {
-                if (Common.isDef(self.onClick)) {
+        };
+        var create = function (popup) {
+            popup.popupEl = document.createElement('div');
+            popup.popupEl.className = Common.css.ABS + ' ' + Common.css.POPUP;
+            popup.popupEl.id = 'Popup_' + pr.modulePopupIdIterator++;
+            document.body.appendChild(popup.popupEl);
+            popup.popupEl.addEventListener('click', function (event) {
+                if (Common.isDef(popup.onClick)) {
                     var parentEl;
                     if (Common.isUndef(event.target.id) || event.target.id === '') {
                         parentEl = event.target.parentElement;
@@ -131,13 +154,19 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
                         parentEl = event.target;
                     }
                     if (Common.isDef(parentEl.id)) {
-                        self.onClick(event, parentEl);
+                        popup.onClick(event, parentEl);
                     }
-
                 }
             });
-        },
-        hide: function () {
+            document.addEventListener('click', function (event) {
+                console.info('Event on document ' + ' id=' + event.target.id + ' clickEvent:\n' + event.target.outerHTML.substring(0, 200));
+                if (Common.isDef(event.target.id) && event.target.id !== popup.popupBaseComponent.id + '_input') {
+                    console.log('Hide popup for element ' + popup.popupBaseComponent.id + '_input');
+                    popup.hide();
+                }
+            });
+        };
+        this.hide = function () {
             if (Common.isDef(this.popupEl)) {
                 document.body.removeChild(this.popupEl);
                 this.popupEl = undefined;
@@ -145,8 +174,8 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
                     this.onHide();
                 }
             }
-        },
-        render: function (inputEl, popupWidth, popupHeight, innerHTML) {
+        };
+        this.render = function (inputEl, popupWidth, popupHeight, innerHTML) {
             var inputElBoundingRect = inputEl.getBoundingClientRect();
             var inputElTop = inputElBoundingRect.top;
             var inputElHeight = inputElBoundingRect.height;
@@ -155,22 +184,22 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
             var h = window.innerHeight;
             if (h > (inputElTop + inputElHeight + popupHeight)) {
                 //Popup below input field
-                this.setTopAndHeight(inputElHeight + inputElTop, popupHeight);
+                setTopAndHeight(this.popupEl, inputElHeight + inputElTop, popupHeight);
             } else if (inputElTop - popupHeight > 0) {
                 //Popup above input as no space below
-                this.setTopAndHeight(inputElTop - popupHeight, popupHeight);
+                setTopAndHeight(this.popupEl, inputElTop - popupHeight, popupHeight);
             } else {
                 //no space above, so use a minimal area below
-                this.setTopAndHeight(inputElHeight + inputElTop, h - inputElHeight - inputElTop);
+                setTopAndHeight(this.popupEl, inputElHeight + inputElTop, h - inputElHeight - inputElTop);
             }
 
             this.popupEl.innerHTML = innerHTML;
-        },
-        setTopAndHeight: function (top, height) {
-            this.popupEl.style.top = top + 'px';
-            this.popupEl.style.height = height + 'px';
-        },
-    })
+        };
+        var setTopAndHeight = function (popupEl, top, height) {
+            popupEl.style.top = top + 'px';
+            popupEl.style.height = height + 'px';
+        };
+    });
     m.Component = OO.Class.extend(new function () {
         this.init = function (cssClass, styleObj) {
             this.cssClass = cssClass;
@@ -536,7 +565,6 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
      */
     m.Combo = m.Component.extend(new function () {
         var maxItemCount = 5;
-        var headerHeight = 25;
         var onValueChanged = function (combo) {
             if (Common.isDef(combo.selection)) {
                 combo.inputEl.value = combo.inputValue;
@@ -552,7 +580,8 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
             }
         };
         var defaultInputValueGenerator = function (combo, item) {
-            return item["v"][combo.searchAndDisplayFieldInd];
+            return defaultItemInnerRenderer(item);
+            //return item["v"][combo.searchAndDisplayFieldInd];
         };
         //would use the following regex ({item\[\"\w*\"\]})|({item\[\"\w*\"\]\[\d*\]})
         //to match templates like this: <div class="ComboItemInner">{item["v"][0]}>{item["v"]}</div>
@@ -561,11 +590,31 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
 //            return item.split(',')[this.searchAndDisplayFieldInd];
 //        };
         var defaultItemRenderer = function (combo, item) {
-            return '<div class="ComboItemInner">' + item["v"][combo.searchAndDisplayFieldInd] + '</div>';
+            return '<div class="ComboItemInner">' + defaultItemInnerRenderer(item) + '</div>';
+//            return '<div class="ComboItemInner">' + item["v"][combo.searchAndDisplayFieldInd] + '</div>';
         };
-
+        var defaultItemInnerRenderer = function (item) {
+            var inner = '';
+            var values = item["v"];
+            for (var i = 0; i < values.length; i++) {
+                if (inner.length > 0) {
+                    inner += ' ';
+                }
+                inner += values[i];
+            }
+            return inner;
+        }
         var defaultItemMatcher = function (combo, item, searchCriteria) {
-            return item["v"][combo.searchAndDisplayFieldInd].toLowerCase().indexOf(searchCriteria);
+            var searchCriterias = searchCriteria.split(' ');
+            var values = item["v"];
+            var str = defaultItemInnerRenderer(item).toLowerCase();
+            for (var i = 0; i < searchCriterias.length; i++) {
+                if (str.indexOf(searchCriterias[i]) < 0) {
+                    return -1;
+                }
+            }
+            return 1;
+            //return item["v"][combo.searchAndDisplayFieldInd].toLowerCase().indexOf(searchCriteria);
         }
         /**
          * Converts an array or csv string array (separated with this.csvArraySeparator) to a json object, adding an id, which
@@ -584,7 +633,6 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
 //                    } else {
                     var item = combo.model[i];
                     var itemArray = item.split(combo.csvArraySeparator);
-
                     combo.jsonModel[i] = {id: i, "v": itemArray};
 //                        combo.jsonModel[i] = {id: i, "v": combo.model[i].split(combo.csvArraySeparator)};
 //                    }
@@ -592,6 +640,7 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
             }
         }
         //public properties. Need to be defined on this. as the property object is copied into this (won't work with var instruction...)
+        this.headerHeight = 25;
         this.itemHeight = 25;
         this.csvArraySeparator = ';';
         this.instruction = 'Beginn typing...';
@@ -604,7 +653,6 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
         this.valueInd = 0;
         this.referenceInd = 0;
         this.valueChangeListener;
-
         this.modelService;
         /**
          * Function to generate the value to write into the input element from a given json object item. 
@@ -634,9 +682,7 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
          */
         this.init = function (styleObj) {
             this._super('Combo', styleObj);
-
             convertModelToJsonModel(this);
-
             if (Common.isUndef(this.itemRenderer)) {
                 this.itemRenderer = defaultItemRenderer;
             }
@@ -666,21 +712,25 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
         };
         this.loadModel = function (restUrl) {
             var self = this;
+            m.showLoader();
             Common.asyncLoadJsonFile(restUrl, function (xmlhttp) {
                 self.model = JSON.parse(xmlhttp.responseText.split(','));
                 convertModelToJsonModel(self);
+                m.hideLoader();
 //                self.jsonModel = JSON.parse(xmlhttp.responseText);//.split('\n');
 //                console.log(xmlhttp.responseType, xmlhttp.responseText);
 
             });
         };
-        this.loadCsvModel = function (restUrl) {
-            var self = this;
-            Common.asyncLoadHtml(restUrl, function (xmlhttp) {
-                self.data = xmlhttp.responseText.split('\n');
-                console.log(xmlhttp.responseType, xmlhttp.responseText);
-            });
-        };
+//        this.loadCsvModel = function (restUrl) {
+//            var self = this;
+//            m.showLoader();
+//            Common.asyncLoadHtml(restUrl, function (xmlhttp) {
+//                self.data = xmlhttp.responseText.split('\n');
+//                console.log(xmlhttp.responseType, xmlhttp.responseText);
+//                
+//            });
+//        };
         this.renderInner = function () {
             pr.registerComponentForAttaching(this);
             return new Tags.Tag('input').id(this.id + '_input').addClass('ComboInput')
@@ -690,6 +740,7 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
         };
         var focusListener = function (combo, e) {
             combo.inputEl.value = Common.isDef(combo.inputValue) ? combo.inputValue : '';
+            e.preventDefault();
         };
         var focusLostListener = function (combo, e) {
             if (Common.isDef(m.popup)) {
@@ -702,7 +753,10 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
         var keyUpListener = function (combo, e) {
             var keyCode = e.keyCode;
             console.log('key up:' + keyCode);
-            if (keyCode === 38) {//arrow up
+            if (keyCode === 13) {//enter
+                focusLostListener(combo, e);
+                return;
+            } else if (keyCode === 38) {//arrow up
                 if (combo.selectedItemInd > 0) {
                     combo.selectedItemInd--;
                 } else {
@@ -715,19 +769,18 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
                     combo.selectedItemInd++;
                 }
             }
+//            combo.inputEl.focus();
             searchAndRenderPopup(combo);
         };
         var searchAndRenderPopup = function (combo) {
             var popupInnerHtml = '';
             var top = 0;
-
             if (Common.isDef(combo.headerTemplate)) {
                 popupInnerHtml += '<div class="ComboHeader"><div>' + combo.headerTemplate + '</div></div>';
-                top = combo.itemHeight;
+                top = combo.headerHeight;
             }
 
             var searchCriteria = combo.inputEl.value.toLowerCase().trim();
-            console.log('Look out for "' + searchCriteria + "'");
             //implement remote data
             if (Common.isDef(combo.remoteService)) {
                 Common.asyncLoadJsonFile(combo.remoteJsonService + '?searchCriteria='
@@ -757,16 +810,16 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
             this.selectedItemInd = 0;
             this.offset = 0;
             this.inputEl = document.getElementById(self.id + '_input');
-
             this.inputEl.addEventListener('keyup', function (e) {
                 keyUpListener(self, e);
             });
             this.inputEl.addEventListener('focus', function (e) {
                 focusListener(self, e);
             });
-            this.inputEl.addEventListener('blur', function (e) {
-                focusLostListener(self, e);
-            });
+            //need to find another solution for detecting tabevents
+//            this.inputEl.addEventListener('blur', function (e) {
+//                focusLostListener(self, e);
+//            });
 
         };
         this.findMatches = function (jsonModel, containsCriteria, offset) {
@@ -784,12 +837,12 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
                 }
                 ind++;
             }
-            console.log('findMatches searched '+ind+' items');
+            console.log('findMatches searched ' + ind + ' items');
             return resultSet;
         }
         var renderPopup = function (combo, popupInnerHTML) {
             //hide any other pop up
-            if (Common.isDef(m.popup) && m.popup.getBaseComponent().id !== this.id) {
+            if (Common.isDef(m.popup) && m.popup.getBaseComponent().id !== combo.id) {
                 m.popup.hide();
                 m.popup = undefined;
             }
@@ -807,13 +860,12 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
                     onValueChanged(combo);
                     m.popup = undefined;
                 };
-                m.popup = new m.Popup(this, onClick, onHide);
+                m.popup = new m.Popup(combo, onClick, onHide);
             }
             var itemsCount = combo.matches.length;
-            var popupHeight = headerHeight + itemsCount * combo.itemHeight;
+            var popupHeight = combo.headerHeight + itemsCount * combo.itemHeight;
             m.popup.render(combo.inputEl, combo.width, popupHeight, popupInnerHTML);
         };
-
         this.renderMatches = function (combo, matches, top) {
             var items = '';
             var itemsCount = 0;
@@ -822,7 +874,7 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
                 items += new Tags.Div(rendered)
                         .id(combo.id + '_comboItem_' + i)
                         .addClass('ComboItem')
-                        .addClass(i === combo.selectedItemInd ? 'ComboItemSelected' : '')
+                        .addClass(i === combo.selectedItemInd ? 'selected' : '')
                         .addStyle('top', top + 'px')
                         .addStyle('height', combo.itemHeight + 'px')
                         .render();
@@ -1170,6 +1222,65 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
             return new Tags.Div(inner)
                     .addClass(Common.css.FILL).render();
         }
+    });
+    m.Chart = m.Component.extend(new function () {
+        this.init = function (properties) {
+            this._super('Chart', properties);
+        }
+        this.renderInner = function () {
+            return  '<svg width="100%" height="100%">'
+                    + '<rect x="10" y="10" height="110" width="110" style="stroke:#ff0000; fill: #0000ff">'
+                    + '<animateTransform '
+                    + 'attributeName="transform" '
+                    + 'begin="0s" '
+                    + 'dur="20s" '
+                    + 'type="rotate" '
+                    + 'from="0 60 60" '
+                    + 'to="360 60 60" '
+                    + 'repeatCount="indefinite" '
+                    + '/> '
+                    + '</rect>'
+                    + '</svg>'
+        }
+    });
+//    m.ColumnChart = function (properties) {
+//        return new Charts.ColumnChart(properties);
+//    };
+    m.ColumnChart = m.Component.extend(new function () {
+
+        /**
+         * The following properties can be set:<br>
+         * width: the width of the component in pixels<br>
+         * height: the height of the component in pixels<br>
+         * template: <br>
+         * headerTemplate:<br>
+         * 
+         * @param {type} styleObj
+         * @returns {undefined}
+         */
+        this.init = function (styleObj) {
+            this._super('Chart', styleObj);
+        };
+
+        this.renderInner = function () {
+
+            pr.registerComponentForAttaching(this);
+            var chart = '<svg width="100%" height="100%">';
+            for (var i = 0; i < 10; i++) {
+                chart += '<rect id="rect_' + i + '" x="' + i * 20 + '" y="' + (100 - i * 10) + '" width="14" height="' + i * 10 + '" stroke="blue" stroke-width="1" fill="#7cb5ec" rx="0" ry="0"></rect>';
+
+            }
+            return chart +
+                    +'</svg>';
+        };
+        this.onAttached = function () {
+            var onMouseOver = function (e) {
+                console.info('mouse over ' + e.currentTarget.id);
+            };
+            for (var i = 0; i < 10; i++) {
+                document.getElementById('rect_' + i).addEventListener('mouseover', onMouseOver);
+            }
+        };
     });
     m.Counter = OO.Class.extend(new function () {
         // private instance variables

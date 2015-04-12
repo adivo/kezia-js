@@ -9,17 +9,13 @@ require(["common", "keziajs"], function (common, K) {
 
     var localArrayCombo = new K.Combo({
         headerTemplate: ' <div style="width:100%">Name</div>',
-//        modelType: 'array',
         model: ['Daniela', 'Annja', 'Katja', 'Roger', 'Rafael', 'Cyrill', 'Rebekka'],
-        //,
-        //remoteService:'http://localhost:8090/cities'
     });
     rowLayout.addComponent(localArrayCombo, 60, K.WidgetPosition.topLeft);
 
     var localArrayWithRendererCombo = new K.Combo({
         width: '300',
         instruction: 'Start typing zipcode or city',
-//        modelType: 'csvArray',
         model: ['8617;Mönchaltorf;10', '8620;Wetzikon;20', '8610;Uster;30'],
         headerTemplate:
                 ' <div style="width:100px">PLZ</div>' +
@@ -39,8 +35,6 @@ require(["common", "keziajs"], function (common, K) {
             var str = item["v"][0] + item["v"][1].toLowerCase();
             return str.indexOf(searchCriteria);
         },
-//,
-        //remoteService:'http://localhost:8090/cities'
     });
     rowLayout.addComponent(localArrayWithRendererCombo, 40, K.WidgetPosition.topLeft);
 
@@ -52,10 +46,9 @@ require(["common", "keziajs"], function (common, K) {
     var csvArrayCombo1_valueLabel = new K.Label('', {width: '300'});
     var csvArrayCombo1 = new K.Combo({
         width: '300',
-        instruction: 'Type city',
-        headerTemplate: 'City',
-//        modelType: 'csvArray',
-        searchAndDisplayFieldInd: 1,
+        instruction: 'Type zipCode, city or value',
+        headerTemplate: 'Zip code, city and value',
+//        searchAndDisplayFieldInd: 1,
         model: ['8617;Mönchaltorf;10', '8620;Wetzikon;20', '8610;Uster;30'],
         valueChangeListener: function () {
             var value = this.getValue();
@@ -77,11 +70,10 @@ require(["common", "keziajs"], function (common, K) {
 
     var csvArrayCombo2 = new K.Combo({
         width: '300',
-        instruction: 'Type ZIP code',
-        headerTemplate: 'PLZ',
-//        modelType: 'csvArray',
-        model: ['8617;Mönchaltorf;10', '8620;Wetzikon;20', '8610;Uster;30'],
-        searchAndDisplayFieldInd: 0
+        instruction: 'Type ZIP code or city',
+        headerTemplate: 'Zip code or city',
+        model: ['8617;Mönchaltorf', '8620;Wetzikon', '8610;Uster'],
+//        searchAndDisplayFieldInd: 0
     });
     rowLayout.addComponent(csvArrayCombo2, 40, K.WidgetPosition.topLeft);
     var csvArrayCombo2_label = new K.Label('Combo with csv array model and searchAndDisplayFieldInd=1 configuration', {
@@ -129,7 +121,36 @@ require(["common", "keziajs"], function (common, K) {
         },
     });
     rowLayout.addComponent(remoteCsvArrayCombo1, 40, K.WidgetPosition.topLeft);
-    rowLayout.addComponent(remoteCsvArrayCombo1_valueLabel, 80, K.WidgetPosition.topLeft);
+    rowLayout.addComponent(remoteCsvArrayCombo1_valueLabel, 40, K.WidgetPosition.topLeft);
+
+    var localCsvArrayCombo3_Label=new K.Label('',{width:300});
+    var localCsvArrayCombo3 = new K.Combo({
+        width: '220',
+        instruction: 'Beginne Bildnamen zu tippen',
+        model: ['Bild 1;bv_1.jpg','Bild 2;bv_2.jpg','Bild 3;bv_3.jpg'],
+        headerTemplate:
+                ' <div style="width:100px">Bildname</div>' +
+                ' <div style="left:100px;right:0;text-align:center">Bild</div>',
+        itemHeight:110,
+        inputValueGenerator: function (combo, item) {
+            return item["v"][0];
+        },
+        itemRenderer: function (combo, item) {
+            return '<div style="width:100px">' + item["v"][0] + '</div>' +
+                    '<div style="left:100px;width:100px;height:100px;border-radius:50px;overflow:hidden"><img src="img/' + item["v"][1] + '" height="100" width="100"></div>';
+        },
+       
+        valueChangeListener: function () {
+            var value = this.getValue();
+            var valueId = this.getValueId();
+            var valueItem = this.getValueItem();
+
+            localCsvArrayCombo3_Label.setValue('value=' + value + ' valueId=' + valueId + ' valueItem=' + JSON.stringify(valueItem));
+        },
+    });
+    rowLayout.addComponent(localCsvArrayCombo3, 40, K.WidgetPosition.topLeft);
+    rowLayout.addComponent(localCsvArrayCombo3_Label, 80, K.WidgetPosition.topLeft);
+
 
     rowLayout.addComponent(new K.Button('Test'), 40, K.WidgetPosition.topLeft);
 

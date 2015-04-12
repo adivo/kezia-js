@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+    <body>
+
+        <p>
+            If you use a named index, when accessing an array, JavaScript will redefined the array to a standard object, and all array methods and properties will produce undefined or incorrect results.
+        </p>
+
+        arrayAsJson<p id="arrayAsJson" style="border:1px solid red"></p><br>
+        jsonToArray<p id="jsonToArray" style="border:1px solid blue"></p><br>
+        arrayObjAsJson<p id="arrayObjAsJson"></p><br>
+        jsonToArrayObj<p id="jsonToArrayObj" style="border:1px solid black"></p><br>
+        jsonToString<p id="jsonToString" style="border:1px solid black"></p><br>
+        <script src="../scripts/anyTests.js"></script>
+        <link type="text/css" rel="stylesheet"  href="anyTests.css">
+        <svg>
+
+        <!--        <style type="text/css" >
+                    <![CDATA[
+        
+                    circle {
+                        stroke: #006600;
+                        fill:   #00cc00;
+                    }
+        
+                    ]]>
+                </style>-->
+
+        <circle class="greenCircle" cx="40" cy="40" r="24"/>
+        </svg>
+     
+        <svg width="1000px" height="30px">
+
+        <defs>
+        <linearGradient id="myLinearGradient1"
+                        x1="0%" y1="0%"
+                        x2="100%" y2="0%"
+                        spreadMethod="pad">
+        <stop offset="10%" stop-color="#00cc00" stop-opacity="1"/>
+        <stop offset="30%" stop-color="#006600" stop-opacity="1"/>
+
+        <stop offset="70%" stop-color="#cc0000" stop-opacity="1"/>
+        <stop offset="90%" stop-color="#000099" stop-opacity="1"/>
+
+        </linearGradient>
+
+        </defs>
+
+        <rect x="10" y="10" width="300" height="50" rx="10" ry="10"
+              style="fill:url(#myLinearGradient1); stroke: #005000;
+              stroke-width: 3;" />
+        </svg>
+    </body>
+</html>
