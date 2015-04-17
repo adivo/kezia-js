@@ -7,7 +7,7 @@ require(["common", "keziajs", "keziajs-charts"], function (common, K, KC) {
     var rowLayout = new K.RowLayout();
     rowLayout.setBorderStyleClass('c-paddingBorder');
 
-    var colChart = new KC.ColumnChart({
+    var colChart = new KC.SuperChart({
         xAxis: {
             categories: ['Apples', 'Oranges', 'Pears', 'Grapes', 'Bananas']
         },

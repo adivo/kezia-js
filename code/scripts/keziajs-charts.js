@@ -4,7 +4,7 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
     pr.direction = {
         TL_BR: 'TL_BR'
     }
-    
+
     /**
      * 
      * @param {type} id
@@ -56,6 +56,43 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
                     + 'rx="0" ry="0"><title>Hello, World!</title></rect>';
         }
     });
+    var starToCrossTable = function (dataArray, dimensionInd, seriesInd, factInd) {
+        var model = {};
+        var seriesNameCollection = {};
+        for (dataKey in dataArray) {
+            var data = dataArray[dataKey];
+            var dimension = data[dimensionInd];
+            var series = data[seriesInd];
+            seriesNameCollection[series] = series;
+
+            var modelItem = Common.valueOrDefault(model[dimension], {});
+            var fact = Number(Common.valueOrDefault(modelItem[series], 0)) + Number(data[factInd]);
+            modelItem[series] = fact;
+            model[dimension] = modelItem;
+        }
+
+        //add missing series
+        for (var key in model) {
+            var modelItem = model[key];
+            for (var serie in seriesNameCollection) {
+                if (Common.isUndef(modelItem[serie])) {
+                    modelItem[serie] = 0;
+                }
+
+            }
+        }
+        return model;
+    };
+    var sortObjectProperties = function (object) {
+        var keysSorted = Object.keys(object).sort();
+        console.log(keysSorted);
+    }
+     var sortObjectKeysByPropertyValues = function (object) {
+        var keysSorted = Object.keys(object).sort(function (a, b) {
+            return object[a] - object[b]
+        })
+        console.log(keysSorted);
+    }
     var Coord = OO.Class.extend(new function () {
         this.init = function (originX, originY) {
             this.originX = originX;
@@ -137,41 +174,12 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
         this.init = function (styleObj) {
             this._super('Chart', styleObj);
         };
-        this.prepareModel = function (dataArray, dimensionInd, seriesInd, factInd) {
-            var model = {};
-            var seriesNameCollection = {};
-            for (dataKey in dataArray) {
-                var data = dataArray[dataKey];
-                var dimension = data[dimensionInd];
-                var series = data[seriesInd];
-                seriesNameCollection[series] = series;
 
-                var modelItem = Common.valueOrDefault(model[dimension], {});
-                var fact = Number(Common.valueOrDefault(modelItem[series], 0)) + Number(data[factInd]);
-                modelItem[series] = fact;
-                model[dimension] = modelItem;
-            }
-
-            //add missing series
-            for (var key in model) {
-                var modelItem = model[key];
-                for (var serie in seriesNameCollection) {
-                    if (Common.isUndef(modelItem[serie])) {
-                        modelItem[serie] = 0;
-                    }
-
-                }
-            }
-            return model;
-        };
         this.renderInner = function () {
 
             K.registerComponentForAttaching(this);
 
-            var modelItems = this.prepareModel(this.model, 1, 0, 2);
-            for (modelItem in modelItems) {
-                console.log(modelItem);
-            }
+            var modelItems = starToCrossTable(this.model, 1, 0, 2);
 
             var dimIndex = {};
             for (var di = 0; di < this.dimensions.length; di++) {
@@ -236,7 +244,8 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
                     + '<stop offset="0%"   stop-color="red" stop-opacity="1"/> '
                     + '<stop offset="100%" stop-color="black" stop-opacity="1"/> '
                     + '</linearGradient>'
-                    + pr.linearGradient('gradient1', '#f0f0f0', '#404040', pr.direction.TL_BR,'reflect')
+
+                    + pr.linearGradient('gradient1', '#f0f0f0', '#404040', pr.direction.TL_BR, 'reflect')
                     + m.Gradients.LINEAR_GRAY
                     + m.Gradients.LINEAR_LIGHT_GRAY
                     + '</defs>';
@@ -301,6 +310,157 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
                     x += slotWidth;
                 }
                 x += slotWidth;
+            }
+            return chart +
+                    +'</svg>';
+        };
+        this.onAttached = function () {
+            var onMouseOver = function (e) {
+                console.info('mouse over ' + e.currentTarget.id);
+            };
+//            for (var i = 0; i < 10; i++) {
+//                document.getElementById('rect_' + i).addEventListener('mouseover', onMouseOver);
+//            }
+        };
+    });
+
+    m.SuperChart = K.Component.extend(new function () {
+        this.height = 400;
+        /**
+         * The following properties can be set:<br>
+         * width: the width of the component in pixels<br>
+         * height: the height of the component in pixels<br>
+         * template: <br>
+         * headerTemplate:<br>
+         * 
+         * @param {type} styleObj
+         * @returns {undefined}
+         */
+        this.init = function (styleObj) {
+            this._super('Chart', styleObj);
+        };
+
+        this.renderInner = function () {
+
+            K.registerComponentForAttaching(this);
+
+            var modelItems = starToCrossTable(this.model, 0, 1, 2);
+
+            var dimIndex = {};
+            for (var di = 0; di < this.dimensions.length; di++) {
+                dimIndex[this.dimensions[di]] = di;
+            }
+            
+//            var series = ['1800', '1900', '2008'];
+            var series = ['Africa', 'Europe', 'Asia', 'America', 'Oceania'];
+//            var aggregateToDisplay = aggregates[drillDownPath];
+            var itemCount = Object.keys(modelItems).length;
+            var areaWidth = 500;
+            var areaHeight = 300;
+            var slotWidth = areaWidth / (itemCount * (series.length + 1));
+            var colWidth = slotWidth * 0.75;
+            var bottom = 150;
+
+            var c = new Coord(50, 300);
+            var chart = '<svg width="100%" height="100%">';
+            chart += '<defs>'
+                    + '<linearGradient id="myLinearGradient1" '
+                    + 'x1="0%" y1="0%" '
+                    + 'x2="0%" y2="100%" '
+                    + 'spreadMethod="pad"> '
+                    + '<stop offset="0%"   stop-color="#fafafa" stop-opacity="1"/> '
+                    + '<stop offset="100%" stop-color="#d0d0d0" stop-opacity="1"/> '
+                    + '</linearGradient>'
+
+                    + '<linearGradient id="grad2" '
+                    + 'x1="0%" y1="0%" '
+                    + 'x2="0%" y2="100%" '
+                    + 'spreadMethod="pad"> '
+                    + '<stop offset="0%"   stop-color="red" stop-opacity="1"/> '
+                    + '<stop offset="100%" stop-color="black" stop-opacity="1"/> '
+                    + '</linearGradient>'
+
+                    + pr.linearGradient('gradient1', '#f0f0f0', '#404040', pr.direction.TL_BR, 'reflect')
+                    + m.Gradients.LINEAR_GRAY
+                    + m.Gradients.LINEAR_LIGHT_GRAY
+                    + '</defs>';
+
+            chart += '<rect x="' + c.x(0) + '" y="' + c.y(areaHeight) + '" width="' + (areaWidth +100)+ '" height="' + areaHeight + '" rx="02" ry="2"'
+//                    + ' style="fill:url(#myLinearGradient1);'
+                    + ' style="fill:url(#gradient1);'
+                    + ' stroke: #a0a0a0;'
+                    + ' stroke-width: 0;" />';
+            chart += c.text(areaWidth / 2, areaHeight - 20, 'style="text-anchor: middle"', this.title);
+            chart += c.text(areaWidth / 2, areaHeight - 40, 'style="font-size: 10px;text-anchor: middle"', this.subtitle);
+            //find out max value to display
+            var maxValue = 0;
+            for (var key in modelItems) {
+                var modelItem = modelItems[key];
+                sortObjectProperties(modelItem);
+                for (var seriesKey in modelItem) {
+                    var value = modelItem[seriesKey];
+                    if (value > maxValue) {
+                        maxValue = value;
+                    }
+                }
+
+            }
+            //calculate rendering scale
+            var scale = (areaHeight - 80) / maxValue;
+
+            // render y-Axis with values
+            var yAxisStepInValueUnits = Common.roundToNextPowerOf10(Math.round(maxValue / 5));
+            var yAxisStepInPx = yAxisStepInValueUnits * scale;
+            for (var y = 0; y < areaHeight; y += yAxisStepInPx) {
+                chart += c.line(0, y, areaWidth, y, 'stroke:#a0a0a0;stroke-width:0.05');
+                chart += c.text(-40, y, 'style="text-anchor: right"', Math.round(y / scale));
+            }
+
+            var col = 0;
+            var seriesItemNum = 0;
+            var x = 10;
+//            for (var key in aggregates['Continent']) {
+            for (var modelItemKey in modelItems) {
+
+                var keys = key.split(',');
+                var dimensionNameText = c.text(x + slotWidth * series.length / 2, -15, 'style="writing-mode: bt;text-anchor: middle"', modelItemKey);
+//                var serie = c.verticalText(x + slotWidth*series.length/2, -15, '', key);
+                chart += dimensionNameText;
+                var seriesItemNum = 0;
+                var modelItem = modelItems[modelItemKey];
+                for (var serie in series) {
+                    var value = modelItem[series[serie]];
+
+//                var value = aggregateToDisplay[key];
+                    var pxHeight = value * scale;
+
+                    var colRect = c.rect(x, pxHeight, colWidth, pxHeight, 2, 5, 'rect_' + col,
+                            'stroke-width="0" fill="' + m.ColorSchemes.SPRING_GRADIENT[seriesItemNum] + '" ', '<title>Hello, World!</title>');
+                    // firstAggr[key] / maxValue * this.height;
+//                    var valueText = c.text(x + slotWidth / 2 + 5, pxHeight + 30, 'style="writing-mode: tb;text-anchor: middle"', value.toFixed(2));
+                    var valueText = c.verticalText(x + slotWidth / 2 + 2, pxHeight + 10, '', value.toFixed(0));
+
+//                var end = new Date().getTime();
+//                var timeRect = end - start;
+
+//                console.info('with objects: ' + r + '\n' + timeR);
+//                console.info('with concat:  ' + rect + '\n' + timeRect);
+                    chart += colRect + valueText;
+                    col++;
+                    seriesItemNum++;
+                    x += slotWidth;
+                }
+                x += slotWidth;
+            }
+            //legend
+            var x = areaWidth;
+            var seriesCount = Object.keys(series).length;
+            chart += c.rect(x - 5, areaHeight - 5, 90, seriesCount * 20, 5, 5, '', 'style="stroke:#e0e0e0; fill: #f0f0f0"', '');
+            for (var i = 0; i < seriesCount; i++) {
+                var seriesColor = c.rect(x, areaHeight - 10 - i * 20, 10, 10, 2, 2, '',
+                        'stroke-width="0" fill="' + m.ColorSchemes.SPRING_GRADIENT[i] + '" ', '');
+                var seriesName = c.text(x + 20, areaHeight - 19 - i * 20, '', series[i]);
+                chart += seriesColor + seriesName;
             }
             return chart +
                     +'</svg>';
