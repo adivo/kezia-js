@@ -87,7 +87,7 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
         var keysSorted = Object.keys(object).sort();
         console.log(keysSorted);
     }
-     var sortObjectKeysByPropertyValues = function (object) {
+    var sortObjectKeysByPropertyValues = function (object) {
         var keysSorted = Object.keys(object).sort(function (a, b) {
             return object[a] - object[b]
         })
@@ -119,6 +119,34 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
                     + 'height="' + height + '" '
                     + attributes
                     + 'rx="' + rx + '" ry="' + ry + '">' + inner + '</rect>';
+        };
+        this.animatedRect = function (x, y, fromWidth, toWidth, fromHeight, toHeight, rx, ry, id, attributes, inner) {
+            return '<rect id="' + id + '" '
+                    + 'x="' + this.x(x) + '" '
+                    + 'y="' + this.y(y) + '" '
+                    + 'width="' + toWidth + '" '
+                    + 'height="' + toHeight + '" '
+                    + attributes
+                    + 'rx="' + rx + '" ry="' + ry + '">'
+                    + '<animateTransform attributeName="width" '
+                    + 'type="XML" '
+                    + 'from="0" to="' + toWidth + '" '
+                    + 'begin="0s" dur="3s" '
+                    + 'repeatCount="1"/>'
+//                    + '<animateTransform attributeName="transform" '
+//                    + 'type="scale" '
+//                    + 'from="1 0" to="1 1" '
+//                    + 'begin="0s" dur="3s" '
+//                    + 'repeatCount="1" '
+                    + '/>'
+//             + '<animate attributeName="y" from="'+this.y(y+toHeight)+'" to="'+this.y(y)+'" dur="3s"/>'
+//                    + '<animate attributeName="height" from="0" to="'+toHeight+'" dur="3s"/>'
+//                    + 'from="0" to="'+toHeight+'" '
+//                    + 'begin="0s" dur="3s" '
+//                    + 'repeatCount="3" '
+                    + '/>'
+
+                    + inner + '</rect>';
         };
         this.text = function (x, y, attributes, text) {
             return '<text '
@@ -341,8 +369,11 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
         };
 
         this.renderInner = function () {
-
             K.registerComponentForAttaching(this);
+            return 'rendering';
+        };
+        this.renderChart = function (width, height) {
+
 
             var modelItems = starToCrossTable(this.model, 0, 1, 2);
 
@@ -350,18 +381,18 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
             for (var di = 0; di < this.dimensions.length; di++) {
                 dimIndex[this.dimensions[di]] = di;
             }
-            
+
 //            var series = ['1800', '1900', '2008'];
             var series = ['Africa', 'Europe', 'Asia', 'America', 'Oceania'];
 //            var aggregateToDisplay = aggregates[drillDownPath];
             var itemCount = Object.keys(modelItems).length;
-            var areaWidth = 500;
-            var areaHeight = 300;
+            var areaWidth = width - 120;
+            var areaHeight = height;
             var slotWidth = areaWidth / (itemCount * (series.length + 1));
             var colWidth = slotWidth * 0.75;
             var bottom = 150;
 
-            var c = new Coord(50, 300);
+            var c = new Coord(20, height - 20);
             var chart = '<svg width="100%" height="100%">';
             chart += '<defs>'
                     + '<linearGradient id="myLinearGradient1" '
@@ -385,13 +416,13 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
                     + m.Gradients.LINEAR_LIGHT_GRAY
                     + '</defs>';
 
-            chart += '<rect x="' + c.x(0) + '" y="' + c.y(areaHeight) + '" width="' + (areaWidth +100)+ '" height="' + areaHeight + '" rx="02" ry="2"'
+            chart += '<rect x="' + c.x(0) + '" y="' + c.y(areaHeight) + '" width="' + (areaWidth) + '" height="' + (areaHeight) + '" rx="02" ry="2"'
 //                    + ' style="fill:url(#myLinearGradient1);'
                     + ' style="fill:url(#gradient1);'
                     + ' stroke: #a0a0a0;'
                     + ' stroke-width: 0;" />';
-            chart += c.text(areaWidth / 2, areaHeight - 20, 'style="text-anchor: middle"', this.title);
-            chart += c.text(areaWidth / 2, areaHeight - 40, 'style="font-size: 10px;text-anchor: middle"', this.subtitle);
+            chart += c.text(areaWidth / 2, areaHeight - 40, 'style="text-anchor: middle"', this.title);
+            chart += c.text(areaWidth / 2, areaHeight - 60, 'style="font-size: 10px;text-anchor: middle"', this.subtitle);
             //find out max value to display
             var maxValue = 0;
             for (var key in modelItems) {
@@ -434,7 +465,7 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
 //                var value = aggregateToDisplay[key];
                     var pxHeight = value * scale;
 
-                    var colRect = c.rect(x, pxHeight, colWidth, pxHeight, 2, 5, 'rect_' + col,
+                    var colRect = c.animatedRect(x, pxHeight, colWidth, colWidth, 0, pxHeight, 2, 5, 'rect_' + col,
                             'stroke-width="0" fill="' + m.ColorSchemes.SPRING_GRADIENT[seriesItemNum] + '" ', '<title>Hello, World!</title>');
                     // firstAggr[key] / maxValue * this.height;
 //                    var valueText = c.text(x + slotWidth / 2 + 5, pxHeight + 30, 'style="writing-mode: tb;text-anchor: middle"', value.toFixed(2));
@@ -469,6 +500,14 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
             var onMouseOver = function (e) {
                 console.info('mouse over ' + e.currentTarget.id);
             };
+
+            Common.logInfo('onAttached of ResponsiveColLayout');
+            var element = document.getElementById(this.id + '_p');
+            var self = this;
+            window.onresize = function () {
+                element.innerHTML = self.renderChart(element.clientWidth, element.clientHeight);
+            };
+            element.innerHTML = self.renderChart(element.clientWidth, element.clientHeight);
 //            for (var i = 0; i < 10; i++) {
 //                document.getElementById('rect_' + i).addEventListener('mouseover', onMouseOver);
 //            }

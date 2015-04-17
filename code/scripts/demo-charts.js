@@ -71,6 +71,7 @@ require(["common", "keziajs", "keziajs-charts"], function (common, K, KC) {
         drillDownPath: [['Continent'], ['Continent', 'Year']],
     });
     rowLayout.addComponent(colChart, 400, K.WidgetPosition.fill);
-    rowLayout.addComponent(new K.Chart(), 200, K.WidgetPosition.fill);
+    rowLayout.enableAutoSizeLane();
+//    rowLayout.addComponent(new K.Chart(), 200, K.WidgetPosition.fill);
     K.renderComponents('app', rowLayout);
 });
