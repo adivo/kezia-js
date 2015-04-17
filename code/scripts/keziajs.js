@@ -14,17 +14,7 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
     pr.modalOverlayId = '';
     /* Used to store the id of the dialog attached on top of the overlay */
     pr.modalDialogId = '';
-    /** 
-     * Every component which needs to access the DOM tree must call this method as part of
-     * the renderInner() method. The components method @see onAttached will be called in turn
-     * as soon as all components are rendered and attached to the DOM tree.
-     * 
-     * @param {type} component
-     */
-    pr.registerComponentForAttaching = function (component) {
-        pr.componentsToAttach[pr.componentsToAttach.length] = component;
-        Common.logDebug("registerComponentForAttaching of component id=" + component.id + Common.valueOnCheck(component.name, ' name=' + component.name, ''));
-    }
+
     /** 
      * Called as soon as the rendered components have been injected into an element. 
      * The method onAttached() of the registered components will be called.
@@ -41,6 +31,7 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
 
 //Object to be exported. Define any public object and functions on this object.  
     var m = {};
+    
     /** css class names */
     m.css = {
         FILL: 'fill',
@@ -76,6 +67,17 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
         CENTER: 'Center',
         RIGHT: 'Right'
     };
+    /** 
+     * Every component which needs to access the DOM tree must call this method as part of
+     * the renderInner() method. The components method @see onAttached will be called in turn
+     * as soon as all components are rendered and attached to the DOM tree.
+     * 
+     * @param {type} component
+     */
+    m.registerComponentForAttaching = function (component) {
+        pr.componentsToAttach[pr.componentsToAttach.length] = component;
+        Common.logDebug("registerComponentForAttaching of component id=" + component.id + Common.valueOnCheck(component.name, ' name=' + component.name, ''));
+    }
     /**
      * Renders the given component into the element with elementId.
      * @param {type} elementId
@@ -379,7 +381,7 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
         onAttached: function () {
         },
         renderInner: function () {
-            //pr.registerComponentForAttaching(this);
+            //m.registerComponentForAttaching(this);
             return new Tags.Div(this.text).addClass(this.cssClass).addClass(this.horizontalAlign).render();
         },
         /**
@@ -458,7 +460,7 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
             });
         },
         renderInner: function () {
-            pr.registerComponentForAttaching(this);
+            m.registerComponentForAttaching(this);
             return '';
         }
     });
@@ -483,7 +485,7 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
             }
         },
         renderInner: function () {
-            pr.registerComponentForAttaching(this);
+            m.registerComponentForAttaching(this);
             return '<button id="' + this.id + '_e">' + this.text + '</button>';
         }
     });
@@ -548,7 +550,7 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
             });
         },
         renderInner: function () {
-            pr.registerComponentForAttaching(this);
+            m.registerComponentForAttaching(this);
             var userFeedback = new Tags.Div('').id(this.id + '_uf').addClass('input_uf').render();
             return '<input id="' + this.id + '_input" value="Enter your name"></input>' + userFeedback;
         }
@@ -732,7 +734,7 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
 //            });
 //        };
         this.renderInner = function () {
-            pr.registerComponentForAttaching(this);
+            m.registerComponentForAttaching(this);
             return new Tags.Tag('input').id(this.id + '_input').addClass('ComboInput')
                     .addStyle('width', Common.isDef(this.width) ? (this.width - 12) + 'px' : '')
                     .attribute('type', 'text')
@@ -932,7 +934,7 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
             this.componentsLayoutData[this.componentsLayoutData.length] = new m.LaneLayoutData(slotSize, widgetPosition, slotBgStyle);
         },
         renderInner: function () {
-            pr.registerComponentForAttaching(this);
+            m.registerComponentForAttaching(this);
             Common.logDebug("renderInner of component id=" + this.id + Common.valueOnCheck(this.name, ' name=' + this.name, ''));
             return 'rendering on attached';
         },
@@ -1085,7 +1087,7 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
             this.componentsLayoutData[this.componentsLayoutData.length] = new LaneLayoutData(slotSize, widgetPosition, slotBgStyle);
         },
         renderInner: function () {
-            pr.registerComponentForAttaching(this);
+            m.registerComponentForAttaching(this);
             return this.renderInnerOnAttached();
         },
         addSlotClassAndStyles: function (div, slotPos, slotSize, isLastLane, slotInd) {
@@ -1206,7 +1208,7 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
         onAttached: function () {
         },
         renderInner: function () {
-            pr.registerComponentForAttaching(this);
+            m.registerComponentForAttaching(this);
             var inner = '';
             if (Common.isDef(this.iconUrl)) {
                 var icon = new Tags.Tag('img')
@@ -1264,11 +1266,57 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
 
         this.renderInner = function () {
 
-            pr.registerComponentForAttaching(this);
-            var chart = '<svg width="100%" height="100%">';
-            for (var i = 0; i < 10; i++) {
-                chart += '<rect id="rect_' + i + '" x="' + i * 20 + '" y="' + (100 - i * 10) + '" width="14" height="' + i * 10 + '" stroke="blue" stroke-width="1" fill="#7cb5ec" rx="0" ry="0"></rect>';
+            m.registerComponentForAttaching(this);
+            var dimIndex = {};
+            for (var di = 0; di < this.dimensions.length; di++) {
+                dimIndex[this.dimensions[di]] = di;
+            }
+            var aggregates = {};
+            for (var i = 0; i < this.drillDownPath.length; i++) {
+                var aggregate = [];
+                var len = 0;
+                for (var m = 0; m < this.model.length; m++) {
+                    var row = this.model[m];
+                    var line = '';
+                    var key = '';
+                    var currDrillDownPath = this.drillDownPath[i];
+                    for (var cddp = 0; cddp < currDrillDownPath.length; cddp++) {
+                        key += row[dimIndex[currDrillDownPath[cddp]]] + ',';
+                    }
+                    var value = aggregate[key];
+                    if (Common.isDef(value)) {
+                        value = value + Number(row[2]);
+                    } else {
+                        value = Number(row[2]);
+                        len++;
+                    }
+                    aggregate[key] = value;
+                    for (var c = 0; c < row.length; c++) {
+                        line += row[c] + ' ';
+                    }
+                    console.info(line);
+                }
+                aggregate['length'] = len;
+                aggregates[this.drillDownPath[i]] = aggregate;
+            }
 
+            var chart = '<svg width="100%" height="100%">';
+            var firstAggr = aggregates['Continent'];
+            var len = firstAggr.length;
+            var maxValue = 0;
+            for (var key in aggregates['Continent']) {
+                var value = firstAggr[key];
+                if (value > maxValue) {
+                    maxValue = value;
+                }
+            }
+            maxValue = maxValue * 1.1;
+            var col = 0;
+
+            for (var key in aggregates['Continent']) {
+                var value = firstAggr[key] / maxValue * 100;
+                chart += '<rect id="rect_' + col + '" x="' + col * 20 + '" y="' + (100 - value) + '" width="14" height="' + value + '" stroke="blue" stroke-width="0" fill="#7cb5ec" rx="0" ry="0"></rect>';
+                col++;
             }
             return chart +
                     +'</svg>';
@@ -1277,9 +1325,9 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
             var onMouseOver = function (e) {
                 console.info('mouse over ' + e.currentTarget.id);
             };
-            for (var i = 0; i < 10; i++) {
-                document.getElementById('rect_' + i).addEventListener('mouseover', onMouseOver);
-            }
+//            for (var i = 0; i < 10; i++) {
+//                document.getElementById('rect_' + i).addEventListener('mouseover', onMouseOver);
+//            }
         };
     });
     m.Counter = OO.Class.extend(new function () {

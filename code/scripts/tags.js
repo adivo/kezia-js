@@ -1,8 +1,8 @@
 /**
  * Created by Marcel on 01.03.2015.
  */
-define(["class_require-mod","common"], function (OO,util) {
-    
+define(["class_require-mod", "common"], function (OO, util) {
+
     var BaseTag = OO.Class.extend({
         styleAttr: '',
         cssClazz: '',
@@ -14,7 +14,7 @@ define(["class_require-mod","common"], function (OO,util) {
          */
         init: function (tag) {
             this.tag = tag;
-            this.attributes={};
+            this.attributes = {};
         },
         id: function (id) {
             this.tagId = id;
@@ -63,16 +63,16 @@ define(["class_require-mod","common"], function (OO,util) {
             return this;
         },
         renderStart: function () {
-           var attr='';
+            var attr = '';
             var keys = Object.keys(this.attributes);
             for (i = 0; i < keys.length; i++) {
                 attr += ' ' + keys[i] + '="' + this.attributes[keys[i]] + '"';
             }
-            
+
             return '<' + this.tag
                     + util.valueOnCheck(this.tagId, ' id="' + this.tagId + '"', '')
                     + util.valueOnCheck(this.name, ' name="' + this.name + '"', '')
-             + util.valueOnCheck(attr, ' '+attr, '')
+                    + util.valueOnCheck(attr, ' ' + attr, '')
                     + util.valueOnCheck(this.cssClazz, ' class="' + this.cssClazz + '"', '')
                     + util.valueOnCheck(this.styleAttr, ' style="' + this.styleAttr + '"', '');
         },
@@ -81,7 +81,7 @@ define(["class_require-mod","common"], function (OO,util) {
         },
         renderWithInnerHtml: function (innerHtml) {
             return this.renderStart() + '>'
-                    + util.valueOrDefault(innerHtml, '') + '</div>';
+                    + util.valueOrDefault(innerHtml, '') + '</' + this.tag + '>';
             ;
         }
 
@@ -104,10 +104,10 @@ define(["class_require-mod","common"], function (OO,util) {
         init: function (tag) {
             this._super(tag);
         },
-        withInnerHtml:function(innerHtml){
-             return this.renderWithInnerHtml(innerHtml);
+        withInnerHtml: function (innerHtml) {
+            return this.renderWithInnerHtml(innerHtml);
         },
-        asStandalone:function(){
+        asStandalone: function () {
             return this.renderAsStandalone();
         }
 

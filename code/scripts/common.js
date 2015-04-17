@@ -1,9 +1,32 @@
-define('common', function () {
+//define('common', function () {
+define(["class_require-mod"], function (OO, Common, Tags, K) {
+
     /**
      * A module representing a common.
      * @exports common
      */
     var common = {
+        StopWatch: OO.Class.extend(new function () {
+            this.startTime;
+            this.init = function () {
+                this.startTime = new Date().getTime();
+            };
+            this.stop = function () {
+                var end = new Date().getTime();
+                return startTime - end;
+            };
+
+        }),
+        roundToNextPowerOf10: function (value) {
+            var v = value;
+            var power = 0;
+            while (v > 10) {
+                v = v / 10;
+                power++;
+            }
+            v = Math.round(v) * Math.pow(10, power);
+            return v;
+        },
         /** css class names */
         css: {
             FILL: 'fill',
@@ -17,7 +40,7 @@ define('common', function () {
             MODAL_OVERLAY: 'modal_overlay',
             MODAL_TRANSPARENT_OVERLAY: 'transp-overlay',
             DIALOG: 'dialog',
-            LOADER:'Loader'
+            LOADER: 'Loader'
         },
         WidgetPosition: {
             topFill: ['top', 'fill'],
@@ -180,7 +203,7 @@ define('common', function () {
         notEmpty: function (value) {
             return !this.isUndef(value) && value.length > 0;
         },
-        /*
+        /**
          * Returns the defaultValue whenever value is undefined
          */
         valueOrDefault: function (value, defaultValue) {
