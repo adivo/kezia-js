@@ -1084,7 +1084,7 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
             component.isInResponsiveContainer = true;
             this.components[this.components.length] = component;
             widgetPosition = Common.WidgetPosition.topFill;
-            this.componentsLayoutData[this.componentsLayoutData.length] = new LaneLayoutData(slotSize, widgetPosition, slotBgStyle);
+            this.componentsLayoutData[this.componentsLayoutData.length] = new m.LaneLayoutData(slotSize, widgetPosition, slotBgStyle);
         },
         renderInner: function () {
             m.registerComponentForAttaching(this);

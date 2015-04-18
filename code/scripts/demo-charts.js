@@ -70,7 +70,49 @@ require(["common", "keziajs", "keziajs-charts"], function (common, K, KC) {
         ],
         drillDownPath: [['Continent'], ['Continent', 'Year']],
     });
-    rowLayout.addComponent(colChart, 400, K.WidgetPosition.fill);
+    var model= [
+            ['1800', 'Africa', '107'],
+            ['1900', 'Africa', '133'],
+            ['2008', 'Africa', '973'],
+            ['1800', 'America', '31'],
+            ['1900', 'America', '156'],
+            ['2008', 'America', '914'],
+            ['1800', 'Asia', '653'],
+            ['1900', 'Asia', '947'],
+            ['2008', 'Asia', '4054'],
+            ['1800', 'Europe', '203'],
+            ['1900', 'Europe', '408'],
+            ['2008', 'Europe', '732'],
+            ['1800', 'Oceania', '2'],
+            ['1900', 'Oceania', '6'],
+            ['2008', 'Oceania', '34']
+        ];
+        var linGradient1=new KC.LinearGradient('id_linearGradient1',10,20,80,90);
+        linGradient1.addColorStop('30','red',0);
+        linGradient1.addColorStop('70','blue',0.5);
+        linGradient1.addColorStop('90','green',0.7);
+        
+    var colChart2 = new KC.SuperChart({
+        title: 'Historic World Population by Region #2',
+        subtitle: 'Source: Wikipedia.org',
+        dimensions: ['Year', 'Continent'],
+        facts: ['Population'],
+        model: model,
+        chartBgGradient:linGradient1
+    });
+     var colChart3 = new KC.SuperChart({
+        title: 'Historic World Population by Region #3',
+        subtitle: 'Source: Wikipedia.org',
+        dimensions: ['Year', 'Continent'],
+        facts: ['Population'],
+        model: model
+    });
+    var responsiveColLayout=new K.ResponsiveColLayout();
+    responsiveColLayout.addComponent(colChart, 400, K.WidgetPosition.fill);
+    responsiveColLayout.addComponent(colChart2, 400, K.WidgetPosition.fill);
+    responsiveColLayout.addComponent(colChart3, 400, K.WidgetPosition.fill);
+    
+    rowLayout.addComponent(responsiveColLayout, 400, K.WidgetPosition.fill);
     rowLayout.enableAutoSizeLane();
 //    rowLayout.addComponent(new K.Chart(), 200, K.WidgetPosition.fill);
     K.renderComponents('app', rowLayout);
