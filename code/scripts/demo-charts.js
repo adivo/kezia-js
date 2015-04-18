@@ -47,6 +47,7 @@ require(["common", "keziajs", "keziajs-charts"], function (common, K, KC) {
                 data: [3, 0, 4, 4, 3],
                 stack: 'female'
             }],
+        chartBgColor:'#fafafa',
         title: 'Historic World Population by Region',
         subtitle: 'Source: Wikipedia.org',
         dimensions: ['Year', 'Continent'],
@@ -88,9 +89,9 @@ require(["common", "keziajs", "keziajs-charts"], function (common, K, KC) {
             ['2008', 'Oceania', '34']
         ];
         var linGradient1=new KC.LinearGradient('id_linearGradient1',10,20,80,90);
-        linGradient1.addColorStop('30','red',0);
+        linGradient1.addColorStop('30','#f5f5f5',0);
         linGradient1.addColorStop('70','blue',0.5);
-        linGradient1.addColorStop('90','green',0.7);
+        linGradient1.addColorStop('90','blue',0.7);
         
     var colChart2 = new KC.SuperChart({
         title: 'Historic World Population by Region #2',

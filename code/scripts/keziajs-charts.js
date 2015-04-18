@@ -113,33 +113,37 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
                     + attributes
                     + 'rx="' + rx + '" ry="' + ry + '">' + inner + '</rect>';
         };
-        this.animatedRect = function (x, y, fromWidth, toWidth, fromHeight, toHeight, rx, ry, id, attributes, inner) {
-            return '<rect id="' + id + '" '
-                    + 'x="' + this.x(x) + '" '
-                    + 'y="' + this.y(y) + '" '
-                    + 'width="' + toWidth + '" '
-                    + 'height="' + toHeight + '" '
-                    + attributes
-                    + 'rx="' + rx + '" ry="' + ry + '">'
-                    + '<animateTransform attributeName="width" '
-                    + 'type="XML" '
-                    + 'from="0" to="' + toWidth + '" '
-                    + 'begin="0s" dur="3s" '
-                    + 'repeatCount="1"/>'
-//                    + '<animateTransform attributeName="transform" '
-//                    + 'type="scale" '
-//                    + 'from="1 0" to="1 1" '
-//                    + 'begin="0s" dur="3s" '
-//                    + 'repeatCount="1" '
-                    + '/>'
-//             + '<animate attributeName="y" from="'+this.y(y+toHeight)+'" to="'+this.y(y)+'" dur="3s"/>'
-//                    + '<animate attributeName="height" from="0" to="'+toHeight+'" dur="3s"/>'
-//                    + 'from="0" to="'+toHeight+'" '
-//                    + 'begin="0s" dur="3s" '
-//                    + 'repeatCount="3" '
-                    + '/>'
+        /**
+         * Creates a rectancle resizing from 0 height to target height.
+         * @param {type} x
+         * @param {type} y
+         * @param {type} width
+         * @param {type} height
+         * @param {type} id
+         * @param {type} attributes
+         * @param {type} inner
+         * @returns {String}
+         */
+        this.animatedRect = function (x, y, width, height, id, attributes, inner) {
+            var rectPoints =
+                    this.x(x) + ',' + this.y(y) + ' '
+                    + this.x(x + width) + ',' + this.y(y) + ' '
+                    + this.x(x + width) + ',' + this.y(y + height) + ' '
+                    + this.x(x) + ',' + this.y(y + height);
+            var rectMinPoints =
+                    this.x(x) + ',' + this.y(y) + ' '
+                    + this.x(x + width) + ',' + this.y(y) + ' '
+                    + this.x(x + width) + ',' + this.y(y) + ' '
+                    + this.x(x) + ',' + this.y(y);
 
-                    + inner + '</rect>';
+            return '<polygon id="' + id + '" '
+                    + 'points="' + rectPoints+'" '
+                    + attributes
+                    + '>'
+                    + '<animate attributeName="points" dur="500ms" from="' + rectMinPoints + '" to="' + rectPoints + '" />'
+                    + inner
+                    + '</polygon>';
+            +inner + '</rect>';
         };
         this.text = function (x, y, attributes, text) {
             return '<text '
@@ -469,8 +473,8 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
                 for (var serie in series) {
                     var value = modelItem[series[serie]];
 //                var value = aggregateToDisplay[key];
-                    var pxHeight = value * scale;
-                    var colRect = c.animatedRect(x, pxHeight, colWidth, colWidth, 0, pxHeight, 2, 5, 'rect_' + col,
+                    var pxHeight = Math.round(value * scale);
+                    var colRect = c.animatedRect(x, 0, colWidth, pxHeight, 'rect_' + col,
                             'stroke-width="0" fill="' + m.ColorSchemes.SPRING_GRADIENT[seriesItemNum] + '" ', '<title>Hello, World!</title>');
                     // firstAggr[key] / maxValue * this.height;
 //                    var valueText = c.text(x + slotWidth / 2 + 5, pxHeight + 30, 'style="writing-mode: tb;text-anchor: middle"', value.toFixed(2));
