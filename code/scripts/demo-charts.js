@@ -49,7 +49,8 @@ require(["common", "keziajs", "keziajs-charts"], function (common, K, KC) {
             }],
         chartBgColor:'#fafafa',
         title: 'Historic World Population by Region',
-        subtitle: 'Source: Wikipedia.org',
+        subTitle: 'Source: Wikipedia.org',
+        legendPosition:KC.LegendPosition.LEFT,
         dimensions: ['Year', 'Continent'],
         facts: ['Population'],
         model: [
@@ -95,7 +96,7 @@ require(["common", "keziajs", "keziajs-charts"], function (common, K, KC) {
         
     var colChart2 = new KC.SuperChart({
         title: 'Historic World Population by Region #2',
-        subtitle: 'Source: Wikipedia.org',
+        subTitle: 'Source: Wikipedia.org',
         dimensions: ['Year', 'Continent'],
         facts: ['Population'],
         model: model,
@@ -103,7 +104,8 @@ require(["common", "keziajs", "keziajs-charts"], function (common, K, KC) {
     });
      var colChart3 = new KC.SuperChart({
         title: 'Historic World Population by Region #3',
-        subtitle: 'Source: Wikipedia.org',
+        legendPosition:KC.LegendPosition.TOP,
+        subTitle: 'Source: Wikipedia.org',
         dimensions: ['Year', 'Continent'],
         facts: ['Population'],
         model: model
