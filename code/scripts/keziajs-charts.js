@@ -450,6 +450,8 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
             var series = ['Africa', 'Europe', 'Asia', 'America', 'Oceania'];
             var seriesCount = Object.keys(series).length;
 //            var aggregateToDisplay = aggregates[drillDownPath];
+            this.legendBgColor = Common.valueOrDefault(this.legendBgColor, '#f0f0f0');
+
             this.padding = Common.valueOrDefault(this.padding, 5);
             this.spacing = Common.valueOrDefault(this.spacing, 5);
             this.yAxisLeftWidth = Common.valueOrDefault(this.yAxisLeftWidth, 50);
@@ -458,49 +460,48 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
 
             this.titleHeight = Common.isDef(this.title) ? Common.valueOrDefault(this.titleHeight, 25) : 0;
             this.subTitleHeight = Common.isDef(this.subTitle) ? Common.valueOrDefault(this.subTitleHeight, 20) : 0;
-var widthOneItem=90;
-                
+            var widthOneItem = 90;
+
             this.legendPosition = Common.valueOrDefault(this.legendPosition, m.LegendPosition.RIGHT);
+            
             if (this.legendPosition === m.LegendPosition.RIGHT || this.legendPosition === m.LegendPosition.LEFT) {
                 this.legendWidth = Common.valueOrDefault(this.legendWidth, 120);
                 this.legendHeight = Common.valueOrDefault(this.legendHeight, 20 * seriesCount);
+                this.areaY = componentHeight - this.padding - this.xAxisHeight - this.spacing;
+                this.areaWidth = componentWidth - this.padding - this.padding - this.legendWidth - this.yAxisLeftWidth - this.spacing - this.spacing;
+                this.areaHeight = this.areaY - this.titleHeight - this.subTitleHeight - this.padding;
 
+                this.legendY = this.areaY - this.spacing - this.padding;
             } else {
-                this.legendWidth = Common.valueOrDefault(this.legendWidth, componentWidth - 2 * this.padding);
-                this.legendHeight = Common.valueOrDefault(this.legendHeight, (seriesCount / (componentWidth / widthOneItem)) * 40);
+                this.legendWidth = componentWidth - 2 * this.padding;
+                this.legendHeight = Common.valueOrDefaultAtMax(this.legendHeight, (seriesCount / (componentWidth / widthOneItem)) * 40);
+
+                this.areaX = this.padding + this.yAxisLeftWidth + this.spacing;
+                this.areaWidth = componentWidth - this.padding - this.areaX;
+                this.areaHeight = componentHeight - this.titleHeight - this.subTitleHeight - 2*this.spacing
+                        - this.legendHeight - 2*this.padding-this.xAxisHeight;
+                this.legendX = this.padding;
             }
             //this.areaX and this.areaY references the svg coordinate system whereas all other x and y coordinate are relative from the
             //new constructed coordinate system with origin areaX and areaY. The y axis is opposite to the direction of svg y axis, namely from bottom to top
             if (this.legendPosition === m.LegendPosition.LEFT) {
                 this.areaX = this.padding + this.legendWidth + this.yAxisLeftWidth + this.spacing;
-                this.areaY = componentHeight - this.padding - this.xAxisHeight - this.spacing;
-                this.areaWidth = componentWidth - this.areaX - this.padding;
-                this.areaHeight = this.areaY - this.titleHeight - this.subTitleHeight - this.padding;
-                this.legendX = -this.spacing - this.legendWidth - this.yAxisLeftWidth;
-                this.legendY = this.areaHeight;
+                this.legendX = this.padding;
             } else if (this.legendPosition === m.LegendPosition.RIGHT) {
                 this.areaX = this.padding + this.yAxisLeftWidth + this.spacing;
-                this.areaY = componentHeight - this.padding - this.xAxisHeight - this.spacing;
-                this.areaWidth = componentWidth - this.padding - this.legendWidth - 10 - this.areaX;
-                this.areaHeight = this.areaY - this.titleHeight - this.subTitleHeight - this.padding;
-                this.legendX = this.areaWidth + this.yAxisRightWidth + this.spacing;
-                this.legendY = this.areaHeight;
+                this.legendX = componentWidth - this.legendWidth - this.padding;
             } else if (this.legendPosition === m.LegendPosition.TOP) {
-                this.areaX = this.padding + this.yAxisLeftWidth + this.spacing;
                 this.areaY = componentHeight - this.padding - this.xAxisHeight - this.spacing;
-                this.areaWidth = componentWidth - this.padding - this.areaX;
-                this.areaHeight = this.areaY - this.titleHeight - this.subTitleHeight - this.spacing-this.legendHeight - this.padding;
-                this.legendX = -this.areaX + this.padding;
-                this.legendY = this.areaHeight + this.legendHeight+this.spacing;
+                this.legendY = componentHeight - this.titleHeight - this.subTitleHeight - this.spacing;
             } else if (this.legendPosition === m.LegendPosition.BOTTOM) {
-                this.areaX = this.leftPadding;
-                this.areaWidth = componentWidth - this.rightPadding - this.areaX;
+                this.areaY = componentHeight - 2*this.padding - this.legendHeight - this.xAxisHeight - this.spacing;
+                this.legendY = this.padding + this.legendHeight;
             }
 
             var slotWidth = Math.round(this.areaWidth / (itemCount * (series.length + 1)));
             var colWidth = Math.round(slotWidth * 0.75);
             var c = new Coord(this.areaX, this.areaY);
-            var cc=new Coord(0,componentHeight);
+            var cc = new Coord(0, componentHeight);
             var chart = '<svg width="100%" height="100%">';
             chart += '<defs>'
                     + (Common.isDef(this.chartBgGradient) ? this.chartBgGradient.render() : '')
@@ -513,8 +514,8 @@ var widthOneItem=90;
                     + ' stroke: #a0a0a0;'
                     + ' stroke-width: 0;" />';
             var compCenterX = componentWidth / 2;
-            chart += cc.text(compCenterX, componentHeight -  this.titleHeight / 2, 'style="text-anchor: middle"', this.title);
-            chart += cc.text(compCenterX, componentHeight -this.titleHeight- this.subTitleHeight / 2, 'style="font-size: 10px;text-anchor: middle"', this.subTitle);
+            chart += cc.text(compCenterX, componentHeight - this.titleHeight / 2, 'style="text-anchor: middle"', this.title);
+            chart += cc.text(compCenterX, componentHeight - this.titleHeight - this.subTitleHeight / 2, 'style="font-size: 10px;text-anchor: middle"', this.subTitle);
             //calculate rendering scale
             var scale = (this.areaHeight - 60) / maxValue;
             // render y-Axis with values
@@ -529,6 +530,7 @@ var widthOneItem=90;
             var col = 0;
             var seriesItemNum = 0;
             var x = slotWidth / 2;
+            var rectToAnimateId = [];
 //            for (var key in aggregates['Continent']) {
             for (var modelItemKey in modelItems) {
 
@@ -541,8 +543,10 @@ var widthOneItem=90;
                     var value = modelItem[series[serie]];
 //                var value = aggregateToDisplay[key];
                     var pxHeight = Math.round(value * scale);
-                    var colRect = c.animatedRect(x, 0, colWidth, pxHeight, 'rect_' + col,
-                            'stroke-width="0" fill="' + m.ColorSchemes.SPRING[seriesItemNum] + '" ', '<title>Hello, World!</title>');
+                    rectToAnimateId[col] = 'rect_' + col;
+                    var colRect = c.animatedRect(x, 0, colWidth, pxHeight, this.id + 'rect_' + col,
+                            'stroke-width="0" fill="' + m.ColorSchemes.SPRING[seriesItemNum] + '" ',
+                            '<title>' + dimensionNameText + ',' + series[serie] + '</title>');
                     // firstAggr[key] / maxValue * this.height;
 //                    var valueText = c.text(x + slotWidth / 2 + 5, pxHeight + 30, 'style="writing-mode: tb;text-anchor: middle"', value.toFixed(2));
                     var valueText = c.verticalText(x + slotWidth / 2 + 2, pxHeight + 10, '', value.toFixed(0));
@@ -561,33 +565,33 @@ var widthOneItem=90;
 //          //Y-Axis Title
             //legend
             var seriesCount = Object.keys(series).length;
-            chart += c.rect(this.legendX, this.legendY, this.legendWidth, this.legendHeight, 5, 5, '', 'style="stroke:#e0e0e0; fill: #f0f0f0"', '');
+            chart += cc.rect(this.legendX, this.legendY, this.legendWidth, this.legendHeight, 5, 5, '', 'style="stroke:#e0e0e0; fill: ' + this.legendBgColor + '"', '');
 
             if (this.legendPosition === m.LegendPosition.RIGHT || this.legendPosition === m.LegendPosition.LEFT) {
                 var y = this.legendY - 5;
 
                 for (var i = 0; i < seriesCount; i++) {
-                    var seriesColor = c.rect(this.legendX + 5, y, 10, 10, 2, 2, '',
+                    var seriesColor = cc.rect(this.legendX + 5, y, 10, 10, 2, 2, '',
                             'stroke-width="0" fill="' + m.ColorSchemes.SPRING[i] + '" ', '');
-                    var seriesName = c.text(this.legendX + 20, y - 10, '', series[i]);
+                    var seriesName = cc.text(this.legendX + 20, y - 10, '', series[i]);
                     chart += seriesColor + seriesName;
                     y -= 20;
                 }
             }
             else {
                 var y = this.legendY - 5;
-                var x=this.legendX+5;
+                var x = this.legendX + 5;
                 for (var i = 0; i < seriesCount; i++) {
-                    var seriesColor = c.rect(x, y, 10, 10, 2, 2, '',
+                    var seriesColor = cc.rect(x, y, 10, 10, 2, 2, '',
                             'stroke-width="0" fill="' + m.ColorSchemes.SPRING[i] + '" ', '');
-                    var seriesName = c.text(x + 15, y - 10, '', series[i]);
+                    var seriesName = cc.text(x + 15, y - 10, '', series[i]);
                     chart += seriesColor + seriesName;
-                    x+=widthOneItem;
-                    if(x>(this.areaWidth-widthOneItem)){
-                       x=this.legendX+5;
-                      y-=20;  
+                    x += widthOneItem;
+                    if (x > (this.areaWidth - widthOneItem)) {
+                        x = this.legendX + 5;
+                        y -= 20;
                     }
-             
+
                 }
             }
 
@@ -599,15 +603,31 @@ var widthOneItem=90;
                 console.info('mouse over ' + e.currentTarget.id);
             };
             Common.logInfo('onAttached of ResponsiveColLayout');
-            var element = document.getElementById(this.id + '_p');
+            var element = document.getElementById(this.id + (this.hasBorderBox ? '_b' : '_p'));
             var self = this;
-            window.onresize = function () {
+            K.addWindowResizeListener(function () {
+                console.log('render chart ' + self.id + ' onResize ' + element.clientWidth + '/' + element.clientHeight);
                 element.innerHTML = self.renderChart(element.clientWidth, element.clientHeight);
-            };
+            });
             element.innerHTML = self.renderChart(element.clientWidth, element.clientHeight);
-//            for (var i = 0; i < 10; i++) {
-//                document.getElementById('rect_' + i).addEventListener('mouseover', onMouseOver);
-//            }
+
+            for (var i = 0; i < 10; i++) {
+                var el = document.getElementById(this.id + 'rect_' + i);
+                var points = el.getAttribute('points').split(',').join(' ').trim().split(' ');
+//                this.x(x) + ',' + this.y(y) + ' '
+//                    + this.x(x + width) + ',' + this.y(y) + ' '
+//                    + this.x(x + width) + ',' + this.y(y + height) + ' '
+//                    + this.x(x) + ',' + this.y(y + height);
+                points[5] = Number(points[5]) - 20;
+                points[7] = Number(points[7]) - 20;
+                var pointsStr = '';
+                var j = 0;
+                while (j < points.length - 1) {
+                    pointsStr += points[j] + ',' + points[j + 1] + ' ';
+                    j += 2;
+                }
+                el.setAttribute('points', pointsStr);
+            }
         };
     });
     return m;

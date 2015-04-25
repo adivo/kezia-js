@@ -14,7 +14,7 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
     pr.modalOverlayId = '';
     /* Used to store the id of the dialog attached on top of the overlay */
     pr.modalDialogId = '';
-
+pr.windowResizeListener=[];
     /** 
      * Called as soon as the rendered components have been injected into an element. 
      * The method onAttached() of the registered components will be called.
@@ -31,7 +31,7 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
 
 //Object to be exported. Define any public object and functions on this object.  
     var m = {};
-    
+
     /** css class names */
     m.css = {
         FILL: 'fill',
@@ -89,6 +89,15 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
             element.innerHTML = component.render('top:0;left:0;bottom:0;right:0');
             pr.attachRegisteredComponents();
         }
+        
+        window.onresize = function () {
+            for (var i=0;i< pr.windowResizeListener.length;i++){
+                var listener=pr.windowResizeListener[i];
+                if (Common.isDef(listener)){
+                    listener();
+                }
+            }
+        };
     };
     m.refreshComponent = function (component) {
         var element = document.getElementById(component.id + '_p');
@@ -97,6 +106,9 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
             pr.attachRegisteredComponents();
         }
     };
+    m.addWindowResizeListener=function(windowResizeListener){
+        pr.windowResizeListener[pr.windowResizeListener.length]=windowResizeListener;
+    }
 
     m.showLoader = function () {
         if (Common.isUndef(pr.loaderElement)) {
@@ -255,7 +267,7 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
                 componentInner = this.renderInner();
             }
 
-            if (!Common.isUndef(this.borderStyleProperty)) {
+            if (Common.isDef(this.borderStyleProperty) || Common.isDef(this.borderStyleClass)) {
                 //border div as border style properties are set
                 componentInner = new Tags.Div(componentInner)
                         .id(this.id + '_b')
@@ -264,19 +276,21 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
                         .addStyle('border-radius', this.borderRadiusStyleProperty)
                         .addStyle('border', this.borderStyleProperty)
                         .addStyle('box-shadow', this.cssBoxShadowStyleProperty)
-                        .render();
-                this.hasBorderBox = true;
-            } else if (Common.isDef(this.borderStyleClass)) {
-                //border div as border style class is set
-                componentInner = new Tags.Div(componentInner)
-                        .id(this.id + '_b')
-                        .addStyle('background', this.backgroundStyleProperty)
-                        .addStyle('border-radius', this.borderRadiusStyleProperty)
-                        .addClass('Border')
+//                        .addClass('Border')
                         .addClass(this.borderStyleClass)
-//                        .addClass(this.cssClass)
                         .render();
                 this.hasBorderBox = true;
+//            } else if (Common.isDef(this.borderStyleClass)) {
+//                //border div as border style class is set
+//                componentInner = new Tags.Div(componentInner)
+//                        .id(this.id + '_b')
+//                        .addStyle('background', this.backgroundStyleProperty)
+//                        .addStyle('border-radius', this.borderRadiusStyleProperty)
+//                        .addClass('Border')
+//                        .addClass(this.borderStyleClass)
+////                        .addClass(this.cssClass)
+//                        .render();
+//                this.hasBorderBox = true;
             } else {
                 // no border defined, so set those attributes in position box
                 bg = this.backgroundStyleProperty;
@@ -1066,7 +1080,7 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
 //            Common.logInfo('ResponsiveColLayout resized');
 //        });
             var self = this;
-            window.onresize = function () {
+            m.addWindowResizeListener(function () {
                 Common.logInfo('ResponsiveColLayout resized. Width:' + element.clientWidth + ' Height:' + element.clientHeight);
                 var width;
                 if (element.clientWidth / self.components.length <= self.minWidthPerCol) {
@@ -1078,7 +1092,7 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
                     var el = document.getElementById(self.components[i].id + '_c');
                     el.style.width = width;
                 }
-            };
+            });
         },
         addComponent: function (component, slotSize, widgetPosition, slotBgStyle) {
             component.isInResponsiveContainer = true;

@@ -212,6 +212,12 @@ define(["class_require-mod"], function (OO, Common, Tags, K) {
             }
             return value;
         },
+        valueOrDefaultAtMax: function (value, defaultAndMaxValue) {
+            if (typeof value === 'undefined') {
+                return defaultAndMaxValue;
+            }
+            return value<defaultAndMaxValue?value:defaultAndMaxValue;
+        },
         /**
          * Return the valueWhenDefined whenever checkValue is defined and not ''. Otherwise the undefVal is returned. 
          */

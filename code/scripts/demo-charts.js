@@ -8,6 +8,7 @@ require(["common", "keziajs", "keziajs-charts"], function (common, K, KC) {
     rowLayout.setBorderStyleClass('c-paddingBorder');
 
     var colChart = new KC.SuperChart({
+        borderStyleProperty: '1px solid #a0a0a0',
         xAxis: {
             categories: ['Apples', 'Oranges', 'Pears', 'Grapes', 'Bananas']
         },
@@ -47,10 +48,10 @@ require(["common", "keziajs", "keziajs-charts"], function (common, K, KC) {
                 data: [3, 0, 4, 4, 3],
                 stack: 'female'
             }],
-        chartBgColor:'#fafafa',
+        chartBgColor: '#fafafa',
         title: 'Historic World Population by Region',
         subTitle: 'Source: Wikipedia.org',
-        legendPosition:KC.LegendPosition.LEFT,
+        legendPosition: KC.LegendPosition.LEFT,
         dimensions: ['Year', 'Continent'],
         facts: ['Population'],
         model: [
@@ -72,49 +73,66 @@ require(["common", "keziajs", "keziajs-charts"], function (common, K, KC) {
         ],
         drillDownPath: [['Continent'], ['Continent', 'Year']],
     });
-    var model= [
-            ['1800', 'Africa', '107'],
-            ['1900', 'Africa', '133'],
-            ['2008', 'Africa', '973'],
-            ['1800', 'America', '31'],
-            ['1900', 'America', '156'],
-            ['2008', 'America', '914'],
-            ['1800', 'Asia', '653'],
-            ['1900', 'Asia', '947'],
-            ['2008', 'Asia', '4054'],
-            ['1800', 'Europe', '203'],
-            ['1900', 'Europe', '408'],
-            ['2008', 'Europe', '732'],
-            ['1800', 'Oceania', '2'],
-            ['1900', 'Oceania', '6'],
-            ['2008', 'Oceania', '34']
-        ];
-        var linGradient1=new KC.LinearGradient('id_linearGradient1',10,20,80,90);
-        linGradient1.addColorStop('30','#f5f5f5',0);
-        linGradient1.addColorStop('70','blue',0.5);
-        linGradient1.addColorStop('90','blue',0.7);
-        
+    var model = [
+        ['1800', 'Africa', '107'],
+        ['1900', 'Africa', '133'],
+        ['2008', 'Africa', '973'],
+        ['1800', 'America', '31'],
+        ['1900', 'America', '156'],
+        ['2008', 'America', '914'],
+        ['1800', 'Asia', '653'],
+        ['1900', 'Asia', '947'],
+        ['2008', 'Asia', '4054'],
+        ['1800', 'Europe', '203'],
+        ['1900', 'Europe', '408'],
+        ['2008', 'Europe', '732'],
+        ['1800', 'Oceania', '2'],
+        ['1900', 'Oceania', '6'],
+        ['2008', 'Oceania', '34']
+    ];
+    var linGradient1 = new KC.LinearGradient('id_linearGradient1', 10, 20, 80, 90);
+    linGradient1.addColorStop('30', '#f5f5f5', 0);
+    linGradient1.addColorStop('70', 'blue', 0.5);
+    linGradient1.addColorStop('90', 'blue', 0.7);
+
     var colChart2 = new KC.SuperChart({
         title: 'Historic World Population by Region #2',
         subTitle: 'Source: Wikipedia.org',
         dimensions: ['Year', 'Continent'],
         facts: ['Population'],
         model: model,
-        chartBgGradient:linGradient1
+        chartBgGradient: linGradient1
     });
-     var colChart3 = new KC.SuperChart({
+    var colChart3 = new KC.SuperChart({
+        backgroundStyleProperty: '#f8f8f8',
+        borderRadiusStyleProperty: '20px',
+        legendBgColor: 'white',
+        chartBgColor: 'white',
         title: 'Historic World Population by Region #3',
-        legendPosition:KC.LegendPosition.TOP,
+        legendPosition: KC.LegendPosition.TOP,
         subTitle: 'Source: Wikipedia.org',
         dimensions: ['Year', 'Continent'],
         facts: ['Population'],
         model: model
     });
-    var responsiveColLayout=new K.ResponsiveColLayout();
+    var colChart4 = new KC.SuperChart({
+        backgroundStyleProperty: '#f8f8f8',
+        borderRadiusStyleProperty: '20px',
+        legendBgColor: 'white',
+        chartBgColor: 'white',
+        title: 'Historic World Population by Region #3',
+        legendPosition: KC.LegendPosition.BOTTOM,
+        subTitle: 'Source: Wikipedia.org',
+        dimensions: ['Year', 'Continent'],
+        facts: ['Population'],
+        model: model
+    });
+    var responsiveColLayout = new K.ResponsiveColLayout();
     responsiveColLayout.addComponent(colChart, 400, K.WidgetPosition.fill);
     responsiveColLayout.addComponent(colChart2, 400, K.WidgetPosition.fill);
     responsiveColLayout.addComponent(colChart3, 400, K.WidgetPosition.fill);
-    
+    responsiveColLayout.addComponent(colChart4, 400, K.WidgetPosition.fill);
+
     rowLayout.addComponent(responsiveColLayout, 400, K.WidgetPosition.fill);
     rowLayout.enableAutoSizeLane();
 //    rowLayout.addComponent(new K.Chart(), 200, K.WidgetPosition.fill);
