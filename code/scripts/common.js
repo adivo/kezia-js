@@ -17,6 +17,20 @@ define(["class_require-mod"], function (OO, Common, Tags, K) {
             };
 
         }),
+        animate: function (renderingFunc, durationInMs) {
+            console.log('animate');
+            var step = 1 / (durationInMs / 100);
+            var progress = 0;
+            var timer = setInterval(function () {
+                if (progress < 1) {
+                    progress += step;
+                console.log('animate with progress='+progress);
+                    renderingFunc(progress);
+                    } else {
+                    clearInterval(timer);
+                }
+            }, 100);
+        },
         roundToNextPowerOf10: function (value) {
             var v = value;
             var power = 0;
@@ -216,7 +230,7 @@ define(["class_require-mod"], function (OO, Common, Tags, K) {
             if (typeof value === 'undefined') {
                 return defaultAndMaxValue;
             }
-            return value<defaultAndMaxValue?value:defaultAndMaxValue;
+            return value < defaultAndMaxValue ? value : defaultAndMaxValue;
         },
         /**
          * Return the valueWhenDefined whenever checkValue is defined and not ''. Otherwise the undefVal is returned. 

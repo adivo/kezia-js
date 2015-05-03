@@ -109,6 +109,19 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
                     + 'x2="' + this.x(x2) + '" '
                     + 'y2="' + this.y(y2) + '" style="' + styles + '"/>';
         };
+        /**
+         * 
+         * @param {type} x
+         * @param {type} y
+         * @param {type} width
+         * @param {type} height
+         * @param {type} rx
+         * @param {type} ry
+         * @param {type} id
+         * @param {type} attributes
+         * @param {type} inner
+         * @returns {String}
+         */
         this.rect = function (x, y, width, height, rx, ry, id, attributes, inner) {
             return '<rect id="' + id + '" '
                     + 'x="' + this.x(x) + '" '
@@ -419,6 +432,11 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
     });
     m.SuperChart = K.Component.extend(new function () {
         this.height = 400;
+
+        var rectToAnimateId = [];
+        var rectToAnimateHeight = [];
+        var rectToAnimateY;
+//          
         /**
          * The following properties can be set:<br>
          * width: the width of the component in pixels<br>
@@ -463,7 +481,7 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
             var widthOneItem = 90;
 
             this.legendPosition = Common.valueOrDefault(this.legendPosition, m.LegendPosition.RIGHT);
-            
+
             if (this.legendPosition === m.LegendPosition.RIGHT || this.legendPosition === m.LegendPosition.LEFT) {
                 this.legendWidth = Common.valueOrDefault(this.legendWidth, 120);
                 this.legendHeight = Common.valueOrDefault(this.legendHeight, 20 * seriesCount);
@@ -478,8 +496,8 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
 
                 this.areaX = this.padding + this.yAxisLeftWidth + this.spacing;
                 this.areaWidth = componentWidth - this.padding - this.areaX;
-                this.areaHeight = componentHeight - this.titleHeight - this.subTitleHeight - 2*this.spacing
-                        - this.legendHeight - 2*this.padding-this.xAxisHeight;
+                this.areaHeight = componentHeight - this.titleHeight - this.subTitleHeight - 2 * this.spacing
+                        - this.legendHeight - 2 * this.padding - this.xAxisHeight;
                 this.legendX = this.padding;
             }
             //this.areaX and this.areaY references the svg coordinate system whereas all other x and y coordinate are relative from the
@@ -494,13 +512,14 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
                 this.areaY = componentHeight - this.padding - this.xAxisHeight - this.spacing;
                 this.legendY = componentHeight - this.titleHeight - this.subTitleHeight - this.spacing;
             } else if (this.legendPosition === m.LegendPosition.BOTTOM) {
-                this.areaY = componentHeight - 2*this.padding - this.legendHeight - this.xAxisHeight - this.spacing;
+                this.areaY = componentHeight - 2 * this.padding - this.legendHeight - this.xAxisHeight - this.spacing;
                 this.legendY = this.padding + this.legendHeight;
             }
 
             var slotWidth = Math.round(this.areaWidth / (itemCount * (series.length + 1)));
             var colWidth = Math.round(slotWidth * 0.75);
             var c = new Coord(this.areaX, this.areaY);
+            rectToAnimateY=this.areaY;
             var cc = new Coord(0, componentHeight);
             var chart = '<svg width="100%" height="100%">';
             chart += '<defs>'
@@ -530,8 +549,7 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
             var col = 0;
             var seriesItemNum = 0;
             var x = slotWidth / 2;
-            var rectToAnimateId = [];
-//            for (var key in aggregates['Continent']) {
+//              for (var key in aggregates['Continent']) {
             for (var modelItemKey in modelItems) {
 
                 var dimensionNameText = c.text(x + slotWidth * series.length / 2, -15, 'style="writing-mode: bt;text-anchor: middle"', modelItemKey);
@@ -543,10 +561,16 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
                     var value = modelItem[series[serie]];
 //                var value = aggregateToDisplay[key];
                     var pxHeight = Math.round(value * scale);
-                    rectToAnimateId[col] = 'rect_' + col;
-                    var colRect = c.animatedRect(x, 0, colWidth, pxHeight, this.id + 'rect_' + col,
+                    rectToAnimateId[col] = this.id + 'rect_' + col;
+                    rectToAnimateHeight[col] = pxHeight;
+                    var colRect = c.rect(x, 0, colWidth, 0, 0, 0, this.id + 'rect_' + col,
                             'stroke-width="0" fill="' + m.ColorSchemes.SPRING[seriesItemNum] + '" ',
                             '<title>' + dimensionNameText + ',' + series[serie] + '</title>');
+                    // 
+//                    var colRect = c.animatedRect(x, 0, colWidth, pxHeight, this.id + 'rect_' + col,
+//                            'stroke-width="0" fill="' + m.ColorSchemes.SPRING[seriesItemNum] + '" ',
+//                            '<title>' + dimensionNameText + ',' + series[serie] + '</title>');
+//                   
                     // firstAggr[key] / maxValue * this.height;
 //                    var valueText = c.text(x + slotWidth / 2 + 5, pxHeight + 30, 'style="writing-mode: tb;text-anchor: middle"', value.toFixed(2));
                     var valueText = c.verticalText(x + slotWidth / 2 + 2, pxHeight + 10, '', value.toFixed(0));
@@ -611,23 +635,28 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
             });
             element.innerHTML = self.renderChart(element.clientWidth, element.clientHeight);
 
-            for (var i = 0; i < 10; i++) {
-                var el = document.getElementById(this.id + 'rect_' + i);
-                var points = el.getAttribute('points').split(',').join(' ').trim().split(' ');
-//                this.x(x) + ',' + this.y(y) + ' '
-//                    + this.x(x + width) + ',' + this.y(y) + ' '
-//                    + this.x(x + width) + ',' + this.y(y + height) + ' '
-//                    + this.x(x) + ',' + this.y(y + height);
-                points[5] = Number(points[5]) - 20;
-                points[7] = Number(points[7]) - 20;
-                var pointsStr = '';
-                var j = 0;
-                while (j < points.length - 1) {
-                    pointsStr += points[j] + ',' + points[j + 1] + ' ';
-                    j += 2;
+            Common.animate(function (progress) {
+                for (var i = 0; i < rectToAnimateId.length; i++) {
+                    var el = document.getElementById(rectToAnimateId[i]);
+//                with polygon
+//                var points = el.getAttribute('points').split(',').join(' ').trim().split(' ');
+//                points[5] = Number(points[5]) - 20;
+//                points[7] = Number(points[7]) - 20;
+
+                    //with rect
+                    var newHeight=rectToAnimateHeight[i]*progress;
+                    el.setAttribute('y', rectToAnimateY - newHeight);
+                    el.setAttribute('height', newHeight);
+//                var pointsStr = '';
+//                var j = 0;
+//                while (j < points.length - 1) {
+//                    pointsStr += points[j] + ',' + points[j + 1] + ' ';
+//                    j += 2;
+//                }
+//                el.setAttribute('points', pointsStr);
                 }
-                el.setAttribute('points', pointsStr);
-            }
+            }, 1000);
+
         };
     });
     return m;
