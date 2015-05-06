@@ -15,22 +15,47 @@ define(["class_require-mod"], function (OO, Common, Tags, K) {
                 var end = new Date().getTime();
                 return startTime - end;
             };
-
         }),
-        animate: function (renderingFunc, durationInMs) {
-            console.log('animate');
-            var step = 1 / (durationInMs / 100);
-            var progress = 0;
-            var timer = setInterval(function () {
+        animate: function (durationInMs,renderingFunc,onCompleteFunc) {
+            var animStartTime = new Date().getTime();
+
+            var render = function () {
+                var now = new Date().getTime();
+                var dt = now - animStartTime;
+                var progress = dt / durationInMs;
                 if (progress < 1) {
-                    progress += step;
-                console.log('animate with progress='+progress);
                     renderingFunc(progress);
-                    } else {
-                    clearInterval(timer);
+                    requestID = requestAnimationFrame(render);
+                } else {
+                    stopAnimation();
                 }
-            }, 100);
+            };
+            var stopAnimation = function () {
+                if (requestID) {
+                    cancelAnimationFrame(requestID);
+                    requestID = undefined;
+                }
+                onCompleteFunc();
+            };
+            
+            var requestID = requestAnimationFrame(render);
+
+            
         },
+//        animate: function (renderingFunc, durationInMs) {
+//            console.log('animate');
+//            var step = 1 / (durationInMs / 100);
+//            var progress = 0;
+//            var timer = setInterval(function () {
+//                if (progress < 1) {
+//                    progress += step;
+//                    console.log('animate with progress=' + progress);
+//                    renderingFunc(progress);
+//                } else {
+//                    clearInterval(timer);
+//                }
+//            }, 100);
+//        },
         roundToNextPowerOf10: function (value) {
             var v = value;
             var power = 0;
@@ -184,12 +209,10 @@ define(["class_require-mod"], function (OO, Common, Tags, K) {
             var script = document.createElement('script');
             script.type = 'text/javascript';
             script.src = url;
-
             // Then bind the event to the callback function.
             // There are several events for cross browser compatibility.
             script.onreadystatechange = callback;
             script.onload = callback;
-
             // Fire the loading
             head.appendChild(script);
         },

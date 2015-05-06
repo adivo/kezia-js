@@ -431,11 +431,7 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
         };
     });
     m.SuperChart = K.Component.extend(new function () {
-        this.height = 400;
 
-        var rectToAnimateId = [];
-        var rectToAnimateHeight = [];
-        var rectToAnimateY;
 //          
         /**
          * The following properties can be set:<br>
@@ -449,6 +445,12 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
          */
         this.init = function (styleObj) {
             this._super('Chart', styleObj);
+
+            this.height = 400;
+
+            this.rectToAnimateId = [];
+            this.rectToAnimateHeight = [];
+            this.rectToAnimateY;
         };
         this.renderInner = function () {
             K.registerComponentForAttaching(this);
@@ -459,15 +461,14 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
             var modelItems = modelObj.model;
             var maxValue = modelObj.maxValue;
 
+            //Create an index of the dimensions
             var dimIndex = {};
             for (var di = 0; di < this.dimensions.length; di++) {
                 dimIndex[this.dimensions[di]] = di;
             }
-//            var series = ['1800', '1900', '2008'];
             var itemCount = Object.keys(modelItems).length;
             var series = ['Africa', 'Europe', 'Asia', 'America', 'Oceania'];
             var seriesCount = Object.keys(series).length;
-//            var aggregateToDisplay = aggregates[drillDownPath];
             this.legendBgColor = Common.valueOrDefault(this.legendBgColor, '#f0f0f0');
 
             this.padding = Common.valueOrDefault(this.padding, 5);
@@ -519,7 +520,7 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
             var slotWidth = Math.round(this.areaWidth / (itemCount * (series.length + 1)));
             var colWidth = Math.round(slotWidth * 0.75);
             var c = new Coord(this.areaX, this.areaY);
-            rectToAnimateY=this.areaY;
+            this.rectToAnimateY = this.areaY;
             var cc = new Coord(0, componentHeight);
             var chart = '<svg width="100%" height="100%">';
             chart += '<defs>'
@@ -561,8 +562,9 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
                     var value = modelItem[series[serie]];
 //                var value = aggregateToDisplay[key];
                     var pxHeight = Math.round(value * scale);
-                    rectToAnimateId[col] = this.id + 'rect_' + col;
-                    rectToAnimateHeight[col] = pxHeight;
+                    this.rectToAnimateId[col] = this.id + 'rect_' + col;
+                    console.log('registered rect with id ' + this.rectToAnimateId[col] + ' for animation');
+                    this.rectToAnimateHeight[col] = pxHeight;
                     var colRect = c.rect(x, 0, colWidth, 0, 0, 0, this.id + 'rect_' + col,
                             'stroke-width="0" fill="' + m.ColorSchemes.SPRING[seriesItemNum] + '" ',
                             '<title>' + dimensionNameText + ',' + series[serie] + '</title>');
@@ -623,6 +625,7 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
                     +'</svg>';
         };
         this.onAttached = function () {
+            console.log('Chart ' + this.id + ' onAttached this.rectToAnimateId[0]=' + this.rectToAnimateId[0]);
             var onMouseOver = function (e) {
                 console.info('mouse over ' + e.currentTarget.id);
             };
@@ -632,20 +635,27 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
             K.addWindowResizeListener(function () {
                 console.log('render chart ' + self.id + ' onResize ' + element.clientWidth + '/' + element.clientHeight);
                 element.innerHTML = self.renderChart(element.clientWidth, element.clientHeight);
+                self.animate(self);
             });
             element.innerHTML = self.renderChart(element.clientWidth, element.clientHeight);
+            self.animate(self);
+        };
+        this.animate = function (self) {
+            var renderingFunction = function (progress) {
+                if (self.rectToAnimateId.length > 0) {
+//                console.log('Update elements '+self.rectToAnimateId[0]+' and followingly with progress='+progress);
+                }
+                for (var i = 0; i < self.rectToAnimateId.length; i++) {
 
-            Common.animate(function (progress) {
-                for (var i = 0; i < rectToAnimateId.length; i++) {
-                    var el = document.getElementById(rectToAnimateId[i]);
+                    var el = document.getElementById(self.rectToAnimateId[i]);
 //                with polygon
 //                var points = el.getAttribute('points').split(',').join(' ').trim().split(' ');
 //                points[5] = Number(points[5]) - 20;
 //                points[7] = Number(points[7]) - 20;
 
                     //with rect
-                    var newHeight=rectToAnimateHeight[i]*progress;
-                    el.setAttribute('y', rectToAnimateY - newHeight);
+                    var newHeight = self.rectToAnimateHeight[i] * progress;
+                    el.setAttribute('y', self.rectToAnimateY - newHeight);
                     el.setAttribute('height', newHeight);
 //                var pointsStr = '';
 //                var j = 0;
@@ -655,9 +665,14 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
 //                }
 //                el.setAttribute('points', pointsStr);
                 }
-            }, 1000);
-
+            }
+            var animationCompleted = function () {
+                console.info('animation completed');
+            }
+            Common.animate(1000, renderingFunction, animationCompleted);
         };
+
+
     });
     return m;
 });

@@ -90,6 +90,23 @@ require(["common", "keziajs", "keziajs-charts"], function (common, K, KC) {
         ['1900', 'Oceania', '6'],
         ['2008', 'Oceania', '34']
     ];
+    var modelFake = [
+        ['1800', 'Africa', '50'],
+        ['1900', 'Africa', '133'],
+        ['2008', 'Africa', '973'],
+        ['1800', 'America', '31'],
+        ['1900', 'America', '156'],
+        ['2008', 'America', '914'],
+        ['1800', 'Asia', '653'],
+        ['1900', 'Asia', '947'],
+        ['2008', 'Asia', '2000'],
+        ['1800', 'Europe', '203'],
+        ['1900', 'Europe', '408'],
+        ['2008', 'Europe', '732'],
+        ['1800', 'Oceania', '2'],
+        ['1900', 'Oceania', '6'],
+        ['2008', 'Oceania', '34']
+    ];
     var linGradient1 = new KC.LinearGradient('id_linearGradient1', 10, 20, 80, 90);
     linGradient1.addColorStop('30', '#f5f5f5', 0);
     linGradient1.addColorStop('70', 'blue', 0.5);
@@ -113,7 +130,7 @@ require(["common", "keziajs", "keziajs-charts"], function (common, K, KC) {
         subTitle: 'Source: Wikipedia.org',
         dimensions: ['Year', 'Continent'],
         facts: ['Population'],
-        model: model
+        model: modelFake
     });
     var colChart4 = new KC.SuperChart({
         backgroundStyleProperty: '#f8f8f8',
