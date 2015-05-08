@@ -118,16 +118,16 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
                     + '</polygon>';
             //+inner + '</rect>';
         };
-        this.text = function (x, y, attributes, text,options) {
-            if (Common.isUndef(options)){
-            	options={};
+        this.text = function (x, y, attributes, text, options) {
+            if (Common.isUndef(options)) {
+                options = {};
             }
             return '<text '
                     + attributes
                     + 'x="' + this.x(x) + '" '
                     + 'y="' + this.y(y) + '"'
-                    + (Common.isDef(options['text-anchor'])?'text-anchor="'+options['text-anchor']+'" ':'')
-                    +'>' + text + '</text>';
+                    + (Common.isDef(options['text-anchor']) ? 'text-anchor="' + options['text-anchor'] + '" ' : '')
+                    + '>' + text + '</text>';
         };
         this.verticalText = function (x, y, attributes, text) {
             return '<text '
@@ -250,7 +250,7 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
                 }
             }
         }
-        return {model:model,maxValue:maxValue,seriesItems:Object.keys(seriesList)};
+        return {model: model, maxValue: maxValue, seriesItems: Object.keys(seriesList)};
     };
     m.SuperChart = K.Component.extend(new function () {
 
@@ -287,8 +287,8 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
          * @returns returns
          */
         this.renderChart = function (componentWidth, componentHeight) {
-        
-            var modelObj=m.ChartModel(this.model, {dimensionInd: 0, seriesInd: 1, factInd: 2});
+
+            var modelObj = m.ChartModel(this.model, {dimensionInd: 0, seriesInd: 1, factInd: 2});
 //            var modelObj = new m.ChartModel(this.model, {dimensionInd: 0, seriesInd: 1, factInd: 2});
             var modelItems = modelObj.model;
             var maxValue = modelObj.maxValue;
@@ -301,8 +301,8 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
             var itemCount = Object.keys(modelItems).length;
 //            var series = ['Africa', 'Europe', 'Asia', 'America', 'Oceania'];
 //            var seriesCount = Object.keys(series).length;
-            var series=modelObj.seriesItems;
-            var seriesCount=Object.keys(modelObj.seriesItems).length;
+            var series = modelObj.seriesItems;
+            var seriesCount = Object.keys(modelObj.seriesItems).length;
             this.legendBgColor = Common.valueOrDefault(this.legendBgColor, '#f0f0f0');
 
             this.padding = Common.valueOrDefault(this.padding, 5);
@@ -449,7 +449,7 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
                 }
             }
 
-            return chart +'</svg>';
+            return chart + '</svg>';
         };
         this.onAttached = function () {
             console.log('Chart ' + this.id + ' onAttached this.rectToAnimateId[0]=' + this.rectToAnimateId[0]);
