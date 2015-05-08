@@ -1,3 +1,4 @@
+/*eslint-env node, amd, browser*/
 define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common, Tags, K) {
 //Define module private variables on the private object (which is not exported)
     var pr = {};
@@ -115,18 +116,18 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
                     + '<animate attributeName="points" dur="500ms" from="' + rectMinPoints + '" to="' + rectPoints + '" />'
                     + inner
                     + '</polygon>';
-            +inner + '</rect>';
+            //+inner + '</rect>';
         };
         this.text = function (x, y, attributes, text,options) {
             if (Common.isUndef(options)){
-                var options={};
+            	options={};
             }
             return '<text '
                     + attributes
                     + 'x="' + this.x(x) + '" '
                     + 'y="' + this.y(y) + '"'
                     + (Common.isDef(options['text-anchor'])?'text-anchor="'+options['text-anchor']+'" ':'')
-                    +'>' + text + '</text>'
+                    +'>' + text + '</text>';
         };
         this.verticalText = function (x, y, attributes, text) {
             return '<text '
@@ -193,7 +194,7 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
                             + 'x1="' + this.x1 + '%" y1="' + this.y1 + '%" '
                             + 'x2="' + this.x2 + '%" y2="' + this.y2 + '%" '
                             + 'spreadMethod="' + this.spreadMethod + '"> ';
-                    for (colorStopKey in this.colorStops) {
+                    for (var colorStopKey in this.colorStops) {
                         var colorStop = this.colorStops[colorStopKey];
                         grad += '<stop offset="' + colorStop['offset'] + '%"   stop-color="' + colorStop['color'] + '" stop-opacity="' + colorStop['opacity'] + '"/> '
                     }
@@ -277,7 +278,16 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
             K.registerComponentForAttaching(this);
             return 'rendering';
         };
+        /**
+         * @name renderChart
+         * @description description
+         * @function
+         * @param componentWidth
+         * @param componentHeight
+         * @returns returns
+         */
         this.renderChart = function (componentWidth, componentHeight) {
+        
             var modelObj=m.ChartModel(this.model, {dimensionInd: 0, seriesInd: 1, factInd: 2});
 //            var modelObj = new m.ChartModel(this.model, {dimensionInd: 0, seriesInd: 1, factInd: 2});
             var modelItems = modelObj.model;
@@ -369,7 +379,7 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
             var yAxisStepInPx = yAxisStepInValueUnits * scale;
             for (var y = 0; y < this.areaHeight; y += yAxisStepInPx) {
                 chart += c.line(0, y, this.areaWidth, y, 'stroke:#a0a0a0;stroke-width:0.05');
-                chart += c.text(-40, y, 'style="text-anchor: end"', Math.round(y / scale));
+                chart += c.text(-5, y, 'style="text-anchor: end"', Math.round(y / scale));
             }
 
             var col = 0;
