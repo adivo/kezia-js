@@ -151,6 +151,10 @@ require(["common", "keziajs", "keziajs-charts"], function (common, K, KC) {
     responsiveColLayout.addComponent(colChart4, 400, K.WidgetPosition.fill);
 
     rowLayout.addComponent(responsiveColLayout, 400, K.WidgetPosition.fill);
+    var row2 = new K.ResponsiveColLayout();
+    row2.addComponent(new K.Button("Send"), 400, K.WidgetPosition.middleCenter);
+    rowLayout.addComponent(row2, 50, K.WidgetPosition.middleCenter);
+
     rowLayout.enableAutoSizeLane();
 //    rowLayout.addComponent(new K.Chart(), 200, K.WidgetPosition.fill);
     K.renderComponents('app', rowLayout);

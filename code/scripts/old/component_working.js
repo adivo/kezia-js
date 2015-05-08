@@ -11,29 +11,28 @@ define(["common", "tags"], function (Common, Tags) {
     k.registerComponentForAttaching = function (component) {
         k.attachComponents[k.attachComponents.length] = component;
         Common.logDebug("registerComponentForAttaching of component id=" + component.id + Common.valueOnCheck(component.name, ' name=' + component.name, ''));
-    }
+    };
     k.attachRegisteredComponents = function () {
         for (i = 0; i < k.attachComponents.length; i++) {
             k.attachComponents[i].isAttached = true;
             k.attachComponents[i].onAttached();
         }
         k.attachComponents = [];
-    }
+    };
     k.renderComponents = function (elementId, component) {
         var element = document.getElementById(elementId);
         if (Common.isDef(element)) {
             element.innerHTML = component.render('top:0;left:0;bottom:0;right:0');
             k.attachRegisteredComponents();
         }
-
-    }
+    };
     k.StyleObj = Class.extend({
         borderStyleProperty: '',
         backgroundStyleProperty: '',
         borderRadiusStyleProperty: '',
         additionalClass: '',
         height: ''
-    })
+    });
 
     k.Component = Class.extend({
         init: function (cssClass, styleObj) {
