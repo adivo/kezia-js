@@ -117,9 +117,9 @@ define(["class_require-mod", "common", "tags", "keziajs"], function(OO, Common, 
 	 * @returns returns
 	 */
 	this.renderLegend=function(series,seriesColors,posX,posY,legendFormat,legendBgColor){
-		var chart='';
+		var code='';
             var seriesCount = Object.keys(series).length;
-            chart += this.rect(posX,posY, this.legendWidth, this.legendHeight, 5, 5, '', 'style="stroke:#e0e0e0; fill: ' + legendBgColor + '"', '');
+            code += this.rect(posX,posY, this.legendWidth, this.legendHeight, 5, 5, '', 'style="stroke:#e0e0e0; fill: ' + legendBgColor + '"', '');
 
             if (legendFormat === m.LegendFormat.LEFT_ALIGNED || legendFormat === m.LegendFormat.RIGHT_ALIGNED) {
                 var y =posY - 5;
@@ -127,21 +127,21 @@ define(["class_require-mod", "common", "tags", "keziajs"], function(OO, Common, 
                 for (var i = 0; i < seriesCount; i++) {
                     var seriesColor = this.rect(posX + 5, y, 10, 10, 2, 2, '',
                         'stroke-width="0" fill="' + seriesColors[i] + '" ', '');
-                    var seriesName = this.text(this.legendX + 20, y - 10, '', series[i]);
-                    chart += seriesColor + seriesName;
+                    var seriesName = this.text(posX + 20, y - 10, '', series[i]);
+                    code += seriesColor + seriesName;
                     y -= 20;
                 }
-            } else {
-                var y = this.legendY - 5;
-                var x = this.legendX + 5;
+            } if (legendFormat===m.LegendFormat.CENTERED {
+                var y = posY - 5;
+                var x = posX + 5;
                 for (var i = 0; i < seriesCount; i++) {
-                    var seriesColor = cc.rect(x, y, 10, 10, 2, 2, '',
-                        'stroke-width="0" fill="' + m.ColorSchemes.SPRING[i] + '" ', '');
-                    var seriesName = cc.text(x + 15, y - 10, '', series[i]);
-                    chart += seriesColor + seriesName;
+                    var seriesColor = this.rect(x, y, 10, 10, 2, 2, '',
+                        'stroke-width="0" fill="' + seriesColors[i] + '" ', '');
+                    var seriesName = text(x + 15, y - 10, '', series[i]);
+                    code += seriesColor + seriesName;
                     x += widthOneItem;
                     if (x > (this.areaWidth - widthOneItem)) {
-                        x = this.legendX + 5;
+                        x = posX + 5;
                         y -= 20;
                     }
                 }
