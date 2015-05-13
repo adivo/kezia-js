@@ -1,3 +1,4 @@
+/*eslint-env browser */
 define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
 //require(["class_require-mod","common", "tags","keziajs-charts"], function (OO, Common, Tags,Charts) {
 //Define module private variables on the private object (which is not exported)
@@ -21,7 +22,7 @@ pr.windowResizeListener=[];
      * Finally the components registry will is reset.
      */
     pr.attachRegisteredComponents = function () {
-        for (i = 0; i < pr.componentsToAttach.length; i++) {
+        for (var i = 0; i < pr.componentsToAttach.length; i++) {
             pr.componentsToAttach[i].isAttached = true;
             pr.componentsToAttach[i].onAttached();
         }
@@ -383,6 +384,7 @@ pr.windowResizeListener=[];
             this.text = text;
             this.overflowVisible = true;
             //this.horizontalAlign=Common.HorizontalPosition.LEFT;
+            
         },
         setValue: function (text) {
             this.text = text;

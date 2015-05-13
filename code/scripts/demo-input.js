@@ -3,6 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
+/*eslint-env node */
 require(["common", "keziajs"], function (common, K) {
     var rowLayout = new K.RowLayout();
     rowLayout.setBorderStyleClass('c-paddingBorder');
@@ -36,6 +37,7 @@ require(["common", "keziajs"], function (common, K) {
             return str.indexOf(searchCriteria);
         },
     });
+    
     rowLayout.addComponent(localArrayWithRendererCombo, 40, K.WidgetPosition.topLeft);
 
     //csv with default configuration
