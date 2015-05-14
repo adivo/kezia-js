@@ -121,6 +121,13 @@ require(["common", "keziajs", "keziajs-charts"], function (common, K, KC) {
         chartBgGradient: linGradient1
     });
     var colChart3 = new KC.SuperChart({
+        caption: {
+            bgColor: '#808080',
+            borderColor: '000000',
+            color: 'white',
+            borderRadius:5,
+            position: KC.LegendPosition.TOP
+        },
         backgroundStyleProperty: '#f8f8f8',
         borderRadiusStyleProperty: '20px',
         legendBgColor: 'white',
@@ -135,10 +142,10 @@ require(["common", "keziajs", "keziajs-charts"], function (common, K, KC) {
     var colChart4 = new KC.SuperChart({
         backgroundStyleProperty: '#f8f8f8',
         borderRadiusStyleProperty: '20px',
-        legendBgColor: 'white',
         chartBgColor: 'white',
         title: 'Historic World Population by Region #3',
         legendPosition: KC.LegendPosition.BOTTOM,
+        legendBorderColor: '#a0a0a0',
         subTitle: 'Source: Wikipedia.org',
         dimensions: ['Year', 'Continent'],
         facts: ['Population'],
