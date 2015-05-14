@@ -3,6 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
+/*eslint-env node */
 require(["common", "keziajs", "keziajs-charts"], function (common, K, KC) {
     var rowLayout = new K.RowLayout();
     rowLayout.setBorderStyleClass('c-paddingBorder');
