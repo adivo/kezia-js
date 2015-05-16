@@ -97,7 +97,7 @@ require(["common", "keziajs", "keziajs-charts"], function (common, K, KC) {
         ['2008', 'Africa', '973'],
         ['1800', 'America', '31'],
         ['1900', 'America', '156'],
-        ['2008', 'America', '914'],
+        ['2008', 'America', '-914'],
         ['1800', 'Asia', '653'],
         ['1900', 'Asia', '947'],
         ['2008', 'Asia', '2000'],
@@ -114,6 +114,13 @@ require(["common", "keziajs", "keziajs-charts"], function (common, K, KC) {
     linGradient1.addColorStop('90', 'blue', 0.7);
 
     var colChart2 = new KC.SuperChart({
+        caption: {
+            bgColor: '#f0f0f0',
+            borderColor: '000000',
+            color: '#f0f0f0',
+            borderRadius:5,
+            position: KC.LegendPosition.LEFT
+        },
         title: 'Historic World Population by Region #2',
         subTitle: 'Source: Wikipedia.org',
         dimensions: ['Year', 'Continent'],
@@ -131,18 +138,26 @@ require(["common", "keziajs", "keziajs-charts"], function (common, K, KC) {
         },
         backgroundStyleProperty: '#f8f8f8',
         borderRadiusStyleProperty: '20px',
-        legendBgColor: 'white',
+        //legendBgColor: 'white',
         chartBgColor: 'white',
         title: 'Historic World Population by Region #3',
-        legendPosition: KC.LegendPosition.TOP,
+        //legendPosition: KC.LegendPosition.TOP,
         subTitle: 'Source: Wikipedia.org',
         dimensions: ['Year', 'Continent'],
         facts: ['Population'],
         model: modelFake
     });
     var colChart4 = new KC.SuperChart({
+        caption: {
+            bgColor: '#085606',
+            borderColor: '000000',
+            color: 'white',
+            borderRadius:5,
+            position: KC.LegendPosition.BOTTOM
+        },
+        areaBgImage:'img/worldmap_green.jpg',
         backgroundStyleProperty: '#f8f8f8',
-        borderRadiusStyleProperty: '20px',
+        borderRadiusStyleProperty: '10px',
         chartBgColor: 'white',
         title: 'Historic World Population by Region #3',
         legendPosition: KC.LegendPosition.BOTTOM,
@@ -159,10 +174,12 @@ require(["common", "keziajs", "keziajs-charts"], function (common, K, KC) {
     responsiveColLayout.addComponent(colChart4, 400, K.WidgetPosition.fill);
 
     rowLayout.addComponent(responsiveColLayout, 400, K.WidgetPosition.fill);
+    
     var row2 = new K.ResponsiveColLayout();
     row2.addComponent(new K.Button("Send"), 400, K.WidgetPosition.middleCenter);
-    rowLayout.addComponent(row2, 50, K.WidgetPosition.middleCenter);
-
+    row2.addComponent(new KC.Tester(),400,K.WidgetPosition.fill);
+    rowLayout.addComponent(row2, 50, K.WidgetPosition.fill);
+    
     rowLayout.enableAutoSizeLane();
 //    rowLayout.addComponent(new K.Chart(), 200, K.WidgetPosition.fill);
     K.renderComponents('app', rowLayout);

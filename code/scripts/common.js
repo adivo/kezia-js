@@ -16,17 +16,23 @@ define(["class_require-mod"], function (OO, Common, Tags, K) {
                 return startTime - end;
             };
         }),
-        animate: function (durationInMs,renderingFunc,onCompleteFunc) {
+        animate: function (durationInMs, onUpdate, onCompleteFunc) {
             var animStartTime = new Date().getTime();
 
             var render = function () {
                 var now = new Date().getTime();
                 var dt = now - animStartTime;
                 var progress = dt / durationInMs;
-                if (progress < 1) {
-                    renderingFunc(progress);
+                if (progress <= 1) {
+                    onUpdate(progress);
                     requestID = requestAnimationFrame(render);
                 } else {
+                    if (progress !== 1) {
+                        progress = 1;//makes sure the last update is with exactly 1
+                        onUpdate(progress);
+                        requestID = requestAnimationFrame(render);
+                    }
+                    console.log("stopped progress at " + progress);
                     stopAnimation();
                 }
             };
@@ -37,10 +43,10 @@ define(["class_require-mod"], function (OO, Common, Tags, K) {
                 }
                 onCompleteFunc();
             };
-            
+
             var requestID = requestAnimationFrame(render);
 
-            
+
         },
 //        animate: function (renderingFunc, durationInMs) {
 //            console.log('animate');
@@ -57,14 +63,26 @@ define(["class_require-mod"], function (OO, Common, Tags, K) {
 //            }, 100);
 //        },
         roundToNextPowerOf10: function (value) {
-            var v = value;
+            if (value === 0) {
+                return 0;
+            }
+            var v = value > 0 ? value : -value;
             var power = 0;
             while (v > 10) {
                 v = v / 10;
                 power++;
             }
-            v = Math.round(v) * Math.pow(10, power);
-            return v;
+            v = Math.round(v + 0.5) * Math.pow(10, power);
+            return value > 0 ? v : -v;
+        },
+        nextPowerOf10: function (value) {
+            var v = value > 0 ? value : -value;
+            var power = 0;
+            while (v > 10) {
+                v = v / 10;
+                power++;
+            }
+            return power;
         },
         /** css class names */
         css: {

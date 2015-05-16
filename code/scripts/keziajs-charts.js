@@ -42,10 +42,7 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
         })
         console.log(keysSorted);
     }
-    pr.Coord1 = function () {
-        obj: OO.Class.extend({
-        });
-    }
+
     var Coord = OO.Class.extend(new function () {
         this.init = function (originX, originY) {
             this.originX = originX;
@@ -60,8 +57,9 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
         this.line = function (x1, y1, x2, y2, styles) {
             return '<line ' + 'x1="' + this.x(x1) + '" ' + 'y1="' + this.y(y1) + '" ' + 'x2="' + this.x(x2) + '" ' + 'y2="' + this.y(y2) + '" style="' + styles + '"/>';
         };
+
         /**
-         * 
+         * Draws a rect with from origin 
          * @param {type} x
          * @param {type} y
          * @param {type} width
@@ -74,6 +72,9 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
          * @returns {String}
          */
         this.rect = function (x, y, width, height, rx, ry, id, attributes, inner) {
+            if (height < 0) {
+                return '<rect id="' + id + '" ' + 'x="' + this.x(x) + '" ' + 'y="' + this.y(y) + height + '" ' + 'width="' + width + '" ' + 'height="' + (-height) + '" ' + attributes + 'rx="' + rx + '" ry="' + ry + '">' + inner + '</rect>';
+            }
             return '<rect id="' + id + '" ' + 'x="' + this.x(x) + '" ' + 'y="' + this.y(y) + '" ' + 'width="' + width + '" ' + 'height="' + height + '" ' + attributes + 'rx="' + rx + '" ry="' + ry + '">' + inner + '</rect>';
         };
         /**
@@ -113,33 +114,31 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
         };
 
         /**
-         * @name m.Legend
-         * @description description
-         * @function
-         * @param series
-         * @param seriesColors
-         * @param posX
-         * @param posY
-         * @param legendFormat see KeziaCharts.LegendFormat
-         * @returns returns
+         * 
+         * @param {type} series
+         * @param {type} seriesColors
+         * @param {type} posX
+         * @param {type} posY
+         * @param {type} width
+         * @param {type} options Property object with one ore more of the following properties:
+         borderRadius: legend box border radius in px.
+         color: font color of the legend texts
+         bgColor: legend box background color
+         borderColor: legend box border color
+         legendFormat: one of m.LegendFormat {LEFT_ALIGNED: 'l',RIGHT_ALIGNED: 'r', CENTERED: 'c'}
+         * @returns {keziajs-charts_L49.renderLegend.keziajs-chartsAnonym$4}
          */
-        this.renderLegend = function (series, seriesColors, posX, posY, width, legendFormat, legendColor, legendBgColor, 
-        legendBorderColor, legendBoxBorderRadius,options) {
-            //var widthOneItem = 90;
-             var rowHeight = 18;
+        this.renderLegend = function (series, seriesColors, posX, posY, width, options) {
+            var rowHeight = 18;
             var padding = 5;
             var charLen = 8;
             var legendIconWidth = 10;
             var legendBoxBorderRadius = Common.valueOrDefault(options.borderRadius, 0);
-            var legendColor=Common.valueOrDefault(options.color,'black');
-            var legendBgColor=Common.valueOrDefault(options.bgColor,'white');
-             var legendBorder = Common.isUndef(options.borderColor) ? '' : ('stroke-width:0.1;stroke:' + options.borderColor);
-          
-// bgColor: '#f0f0f0',
-//                borderColor: 'black',
-//                color: 'black',
-//                borderRadius:0,
-//                position: KC.LegendPosition.TOP
+            var fontColor = Common.valueOrDefault(options.color, 'black');
+            var legendBgColor = Common.valueOrDefault(options.bgColor, 'white');
+            var legendBorder = Common.isUndef(options.borderColor) ? '' : ('stroke-width:0.1;stroke:' + options.borderColor);
+            var legendFormat = Common.valueOrDefault(options.legendFormat, m.LegendFormat.LEFT_ALIGNED);
+
             var code = '';
             var y;
 
@@ -151,7 +150,7 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
                 y = posY - 5;
                 for (var i = 0; i < seriesCount; i++) {
                     var seriesColor = this.rect(posX + 5, y, 10, 10, 2, 2, '', 'stroke-width="0" fill="' + seriesColors[i] + '" ', '');
-                    var seriesName = this.text(posX + 20, y - 10, '', series[i], 'style="text-anchor: middle"');
+                    var seriesName = this.text(posX + 20, y - 10, '', series[i], 'style="font-family:Arial;font-size:12;fill:' + fontColor + ';text-anchor: middle"');
                     code += seriesColor + seriesName;
                     y -= rowHeight;
                 }
@@ -185,7 +184,7 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
                     for (var col = 0; col < itemX[row].length; col++) {
                         var x = xPad + itemX[row][col];
                         var seriesColor = this.rect(x, y, 10, 10, 2, 2, '', 'stroke-width="0" fill="' + seriesColors[i] + '" ', '');
-                        var seriesName = this.text(x + 15, y - 10, 'style="font-family:Arial;font-size:12;fill:' + legendColor + '"', series[i]);
+                        var seriesName = this.text(x + 15, y - 10, 'style="font-family:Arial;font-size:12;fill:' + fontColor + '"', series[i]);
                         code += seriesColor + seriesName;
                         i++;
                     }
@@ -262,7 +261,91 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
                     return grad;
                 }
     };
+    m.CoordinateSystem = function (originX, originY) {
+        //var originX = originX;
+        //var originY = originY;
 
+        var x = function (x) {
+            return originX + x;
+        };
+        var y = function (y) {
+            return originY - y;
+        };
+        return {x: x, y: y};
+    };
+    this.rect = function (x, y, width, height, rx, ry, id, attributes, inner) {
+        if (height < 0) {
+            return '<rect id="' + id + '" ' + 'x="' + this.x(x) + '" ' + 'y="' + this.y(y)
+                    + height + '" ' + 'width="' + width + '" ' + 'height="' + (-height) + '" ' + attributes + 'rx="' + rx + '" ry="' + ry + '">' + inner + '</rect>';
+        }
+        return '<rect id="' + id + '" ' + 'x="' + this.x(x) + '" ' + 'y="' + this.y(y) + '" ' + 'width="' + width + '" ' + 'height="' + height + '" ' + attributes + 'rx="' + rx + '" ry="' + ry + '">' + inner + '</rect>';
+    };
+    var renderStyles = function (styles) {
+        var rendered = '';
+        if (Common.isDef(styles)) {
+            for (var i = 0; i < styles.length; i++) {
+                var style = styles[i];
+                if (style !== '') {
+                    if (rendered.length > 0) {
+                        rendered += ';';
+                    }
+                    rendered += style;
+                }
+            }
+        }
+        if (rendered.length > 0) {
+            rendered = ' style="' + rendered + '"';
+        }
+        return rendered;
+    }
+    m.Rect = function (cs, id, x, y, width, height, inner, options) {
+        options = Common.valueOrDefault(options, {});
+        
+        var withHeightAnim = function (fromHeight, toHeight) {
+            this.fromHeight = fromHeight;
+            this.toHeight = toHeight;
+            return this;
+        };
+        var render = function () {
+
+            var fill = 'fill:' + Common.valueOrDefault(options.bgColor, '#a0a0a0');
+            var strokeWidth = Common.isDef(options.strokeWidth) ? 'stroke-width:' + options.strokeWidth : '';
+            var strokeColor = Common.isDef(options.strokeColor) ? 'stroke:' + options.strokeColor : '';
+            var opacity = Common.isDef(options.opacity) ? 'opacity:' + options.opacity : '';
+            var fillOpacity = Common.isDef(options.fillOpacity) ? 'fill-opacity:' + options.fillOpacity : '';
+            var strokeOpacity = Common.isDef(options.strokeOpacity) ? 'stroke-opacity:' + options.strokeOpacity : '';
+
+            var styles = renderStyles([fill, strokeWidth, strokeColor, opacity, strokeOpacity, fillOpacity]);
+
+            var rx = Common.isDef(options.rx) ? 'rx="' + options.rx + '" ' : '';
+            var ry = Common.isDef(options.ry) ? 'ry="' + options.ry + '" ' : '';
+
+            console.info(styles);
+            var y = height >= 0 ? cs.y(y) - height : cs.y(y);
+            return '<rect id="' + id + '" ' + 'x="' + cs.x(x) + '" ' + 'y="' + y + '" ' + rx + ry
+                    + 'width="' + width + '" ' + 'height="' + height + '"'
+                    + styles
+                    + '>'
+                    + inner + '</rect>';
+
+        };
+        var updateHeight = function (progress) {
+            animateHeight(this.fromHeight, this.toHeight, progress);
+        }
+        var animateHeight = function (fromHeight, toHeight, progress) {
+
+            var el = document.getElementById(id);
+            var newHeight = (toHeight - fromHeight) * progress + fromHeight;
+            if (newHeight >= 0) {//positive height means the rect origin is in the bottom left corner and to draw this we must exchange height and y
+                el.setAttribute('y', cs.y(y) - newHeight);
+                el.setAttribute('height', newHeight);
+            } else { //negative height means the rect origin is in the top left corner
+                el.setAttribute('y', cs.y(y));
+                el.setAttribute('height', -newHeight);
+            }
+        };
+        return {render: render, withHeightAnim: withHeightAnim, animateHeight: animateHeight, updateHeight: updateHeight};
+    }
     /**
      * Transforms a star-like data array into a cross table which is organized as array of dimensions and containing the series values.
      * @param {type} dataRows array  of arrays. Inner arrays are dimensions and facts, e.g.  ['1800', 'Africa', '50']
@@ -277,10 +360,8 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
         var seriesInd = Common.valueOrDefault(indices['seriesInd'], 1);
         var factInd = Common.valueOrDefault(indices['factInd'], 2);
 
-        var model = {};
-        var maxValue = 0;
-
-        var seriesList = {};
+        var model = {}, seriesList = {};
+        var maxValue = 0, minValue = 0;
 
         for (var i = 0; i < dataRows.length; i++) {
             var data = dataRows[i];
@@ -296,9 +377,12 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
             dimFacts[series] = fact;
             model[dimension] = dimFacts;
 
-            // calculate the max value on the fly
+            // calculate min and max value on the fly
             if (fact > maxValue) {
                 maxValue = fact;
+            }
+            if (fact < minValue) {
+                minValue = fact;
             }
         }
 
@@ -315,6 +399,7 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
         return {
             model: model,
             maxValue: maxValue,
+            minValue: minValue,
             seriesItems: Object.keys(seriesList)
         };
     };
@@ -340,11 +425,11 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
          * template: <br>
          * headerTemplate:<br>
          * 
-         * @param {type} styleObj
+         * @param {type} options
          * @returns {undefined}
          */
-        this.init = function (styleObj) {
-            this._super('Chart', styleObj);
+        this.init = function (options) {
+            this._super('Chart', options);
 
             this.height = 400;
 
@@ -368,12 +453,11 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
             //var ccc = new pr.Coord1();
 
             //ccc.testFunct();
-            var modelObj = m.ChartModel(this.model, {
+            var modelObj = new m.ChartModel(this.model, {
                 dimensionInd: 0,
                 seriesInd: 1,
                 factInd: 2
             });
-            //            var modelObj = new m.ChartModel(this.model, {dimensionInd: 0, seriesInd: 1, factInd: 2});
             var modelItems = modelObj.model;
             var maxValue = modelObj.maxValue;
 
@@ -396,7 +480,7 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
                 bgColor: '#f0f0f0',
                 borderColor: 'black',
                 color: 'black',
-                borderRadius:0,
+                borderRadius: 0,
                 position: m.LegendPosition.TOP
             });
 
@@ -405,12 +489,10 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
             this.yAxisLeftWidth = Common.valueOrDefault(this.yAxisLeftWidth, 50);
             this.yAxisRightWidth = Common.isDef(this.yAxisRightName) ? Common.valueOrDefault(this.yAxisRightWidth, 50) : 0;
             this.xAxisHeight = Common.valueOrDefault(this.rightPadding, 30);
-
+            //this.areaBgImage can be used
             this.titleHeight = Common.isDef(this.title) ? Common.valueOrDefault(this.titleHeight, 25) : 0;
             this.subTitleHeight = Common.isDef(this.subTitle) ? Common.valueOrDefault(this.subTitleHeight, 20) : 0;
-//            var widthOneItem = 90;
-
-            this.legendPosition = Common.valueOrDefault(this.legendPosition, m.LegendPosition.RIGHT);
+            this.legendPosition = Common.valueOrDefault(this.caption.position, m.LegendPosition.TOP);
 
             var cc = new Coord(0, componentHeight);
             //legend
@@ -424,12 +506,11 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
 
             var legendFormat;
             if (this.legendPosition === m.LegendPosition.RIGHT || this.legendPosition === m.LegendPosition.LEFT) {
-                legendFormat = m.LegendFormat.LEFT_ALIGNED;
+                this.caption.legendFormat = m.LegendFormat.LEFT_ALIGNED;
             } else {
-                legendFormat = m.LegendFormat.CENTERED;
+                this.caption.legendFormat = m.LegendFormat.CENTERED;
             }
-            var legend = cc.renderLegend(series, seriesColors, 0, 0, this.legendWidth, legendFormat, this.legendColor,
-                    this.legendBgColor, this.legendBorderColor, this.legendBoxBorderRadius,this.caption);
+            var legend = cc.renderLegend(series, seriesColors, 0, 0, this.legendWidth, this.caption);
             this.legendHeight = legend.legendHeight;
 
             if (this.legendPosition === m.LegendPosition.RIGHT || this.legendPosition === m.LegendPosition.LEFT) {
@@ -468,23 +549,38 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
 
             var chart = '<svg width="100%" height="100%">';
             chart += '<defs>' + (Common.isDef(this.chartBgGradient) ? this.chartBgGradient.render() : '') + m.Gradients.LINEAR_GRAY + m.Gradients.LINEAR_LIGHT_GRAY + '</defs>';
+            //chart area
             this.chartBgColor = Common.valueOrDefault(this.chartBgColor, '#f0f0f0');
             chart += '<rect x="' + c.x(0) + '" y="' + c.y(this.areaHeight) + '" width="' + (this.areaWidth) + '" height="' + (this.areaHeight) + '" rx="02" ry="2"' + ' style="fill:' + (Common.isUndef(this.chartBgGradient) ? this.chartBgColor : 'url(#' + this.chartBgGradient.id + ')') + ';' + ' stroke: #a0a0a0;' + ' stroke-width: 0;" />';
+            if (Common.isDef(this.areaBgImage)) {
+                chart += '<image xlink:href="' + this.areaBgImage + '" x="' + c.x(0) + '" y="' + c.y(this.areaHeight) + '" height="' + this.areaHeight + 'px" width="' + this.areaWidth + 'px"/>';
+            }
+
             var compCenterX = componentWidth / 2;
             chart += cc.text(compCenterX, componentHeight - this.titleHeight / 2, 'style="text-anchor: middle"', this.title);
             chart += cc.text(compCenterX, componentHeight - this.titleHeight - this.subTitleHeight / 2, 'style="font-size: 10px;text-anchor: middle"', this.subTitle);
-            //calculate rendering scale
-            var scale = (this.areaHeight - 60) / maxValue;
 
+            //calculate rendering scale
+            var scale = (this.areaHeight - 60) / (maxValue - modelObj.minValue);
+            var valueRange = maxValue - modelObj.minValue;
             // render y-Axis with values
             this.yAxisStepCount = Common.valueOrDefault(this.yAxisStepCount, 5);
-            var yAxisStepInValueUnits = Common.roundToNextPowerOf10(Math.round(maxValue / this.yAxisStepCount));
+            var yAxisStepInValueUnits = Common.roundToNextPowerOf10(Math.round(valueRange / this.yAxisStepCount));
             var yAxisStepInPx = yAxisStepInValueUnits * scale;
+            var yAxisMinValue = Common.roundToNextPowerOf10(Math.round(modelObj.minValue / this.yAxisStepCount)) * this.yAxisStepCount;
+            var yAxisMaxValue = Common.roundToNextPowerOf10(modelObj.maxValue);
+            var yAxisValue = yAxisMinValue;
+            var nextPowerOf10 = Common.nextPowerOf10(yAxisMaxValue - yAxisMinValue);
+            var yAxisMajorStep = Math.pow(10, nextPowerOf10);
+//            var yAxisMajorStep=Common.roundToNextPowerOf10((yAxisMaxValue-yAxisMinValue)/10);
             for (var y = 0; y < this.areaHeight; y += yAxisStepInPx) {
                 chart += c.line(0, y, this.areaWidth, y, 'stroke:#a0a0a0;stroke-width:0.05');
-                chart += c.text(-5, y, 'style="text-anchor: end"', Math.round(y / scale));
+//                chart += c.text(-5, y, 'style="text-anchor: end"', Math.round(y / scale));
+                chart += c.text(-5, y, 'style="text-anchor: end"', yAxisValue);
+                yAxisValue += yAxisMajorStep;
             }
-
+            var yOffset = -yAxisMinValue * scale;
+            //draw columns
             var col = 0;
             var seriesItemNum = 0;
             var x = slotWidth / 2;
@@ -500,7 +596,7 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
                     this.rectToAnimateId[col] = this.id + 'rect_' + col;
                     console.log('registered rect with id ' + this.rectToAnimateId[col] + ' for animation');
                     this.rectToAnimateHeight[col] = pxHeight;
-                    var colRect = c.rect(x, 0, colWidth, 0, 0, 0, this.id + 'rect_' + col,
+                    var colRect = c.rect(x, yOffset, colWidth, 0, 0, 0, this.id + 'rect_' + col,
                             'stroke-width="0" fill="' + m.ColorSchemes.SPRING[seriesItemNum] + '" ',
                             '<title>' + dimensionNameText + ',' + series[serie] + '</title>');
                     //                    var colRect = c.animatedRect(x, 0, colWidth, pxHeight, this.id + 'rect_' + col,
@@ -524,38 +620,8 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
             //Y-Axis Title
             //chart += c.
 
-            var legend = cc.renderLegend(series, seriesColors, this.legendX, this.legendY, this.legendWidth, legendFormat, this.legendColor,
-                    this.legendBgColor, this.legendBorderColor, this.legendBoxBorderRadius,this.caption);
+            var legend = cc.renderLegend(series, seriesColors, this.legendX, this.legendY, this.legendWidth, this.caption);
             chart += legend.svgCode;
-//            var seriesCount = Object.keys(series).length;
-//            chart += cc.rect(this.legendX, this.legendY, this.legendWidth, this.legendHeight, 5, 5, '', 'style="stroke:#e0e0e0; fill: ' + this.legendBgColor + '"', '');
-//
-//            if (this.legendPosition === m.LegendPosition.RIGHT || this.legendPosition === m.LegendPosition.LEFT) {
-//                var y = this.legendY - 5;
-//
-//                for (var i = 0; i < seriesCount; i++) {
-//                    var seriesColor = cc.rect(this.legendX + 5, y, 10, 10, 2, 2, '',
-//                            'stroke-width="0" fill="' + m.ColorSchemes.SPRING[i] + '" ', '');
-//                    var seriesName = cc.text(this.legendX + 20, y - 10, '', series[i]);
-//                    chart += seriesColor + seriesName;
-//                    y -= 20;
-//                }
-//            } else {
-//                var y = this.legendY - 5;
-//                var x = this.legendX + 5;
-//                for (var i = 0; i < seriesCount; i++) {
-//                    var seriesColor = cc.rect(x, y, 10, 10, 2, 2, '',
-//                            'stroke-width="0" fill="' + m.ColorSchemes.SPRING[i] + '" ', '');
-//                    var seriesName = cc.text(x + 15, y - 10, '', series[i]);
-//                    chart += seriesColor + seriesName;
-//                    x += widthOneItem;
-//                    if (x > (this.areaWidth - widthOneItem)) {
-//                        x = this.legendX + 5;
-//                        y -= 20;
-//                    }
-//                }
-//            }
-
             return chart + '</svg>';
         };
         this.onAttached = function () {
@@ -575,7 +641,7 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
             self.animate(self);
         };
         this.animate = function (self) {
-            var renderingFunction = function (progress) {
+            var onUpdate = function (progress) {
                 if (self.rectToAnimateId.length > 0) {
                     //                console.log('Update elements '+self.rectToAnimateId[0]+' and followingly with progress='+progress);
                 }
@@ -590,7 +656,8 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
                     //with rect
                     var newHeight = self.rectToAnimateHeight[i] * progress;
                     el.setAttribute('y', self.rectToAnimateY - newHeight);
-                    el.setAttribute('height', newHeight);
+
+                    el.setAttribute('height', Math.abs(newHeight));
                     //                var pointsStr = '';
                     //                var j = 0;
                     //                while (j < points.length - 1) {
@@ -603,7 +670,95 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
             var animationCompleted = function () {
                 console.info('animation completed');
             };
-            Common.animate(1000, renderingFunction, animationCompleted);
+            Common.animate(1000, onUpdate, animationCompleted);
+        };
+
+
+    });
+
+
+
+    m.Tester = K.Component.extend(new function () {
+        //          
+        /**
+         * The following properties can be set:<br>
+         * width: the width of the component in pixels<br>
+         * height: the height of the component in pixels<br>
+         * template: <br>
+         * headerTemplate:<br>
+         * 
+         * @param {type} options
+         * @returns {undefined}
+         */
+        this.init = function (options) {
+            this._super('Chart', options);
+
+            this.height = 400;
+
+        };
+        this.renderInner = function () {
+            K.registerComponentForAttaching(this);
+            return 'rendering';
+        };
+        /**
+         * @name renderChart
+         * @description description
+         * @function
+         * @param componentWidth
+         * @param componentHeight
+         * @returns returns
+         */
+        this.renderChart = function (componentWidth, componentHeight) {
+            var cs = new m.CoordinateSystem(0, componentHeight);
+            var chart = '<svg width="100%" height="100%">';
+            chart += '<defs>' +  m.Gradients.LINEAR_GRAY + m.Gradients.LINEAR_LIGHT_GRAY + '</defs>';
+        
+            var y = 100;
+            this.rect1 = new m.Rect(cs, 'id1', 10, y, 20, 0, '', {
+                bgColor: 'green',
+                strokeWidth: 0.4,
+                strokeColor: 'black',
+                fillOpacity: 0.5,
+                rx: 2,
+                ry: 2
+            })
+                    .withHeightAnim(0, 200);
+            this.rect2 = new m.Rect(cs, 'id2', 40, y, 20, 0, '',{bgColor: 'url(#LINEAR_LIGHT_GRAY)',strokeColor:'black'}).withHeightAnim(0, -100);
+            this.rect3 = new m.Rect(cs, 'id3', 70, y, 20, 100, '').withHeightAnim(100, 10);
+            this.rect4 = new m.Rect(cs, 'id4', 110, y, 20, -50, '', {bgColor: 'orange', ry: 50}).withHeightAnim(-50, 20);
+            chart += this.rect1.render();
+            chart += this.rect2.render();
+            chart += this.rect3.render();
+            chart += this.rect4.render();
+            return chart + '</svg>';
+        };
+        this.onAttached = function () {
+            Common.logInfo('onAttached of ResponsiveColLayout');
+            var element = document.getElementById(this.id + (this.hasBorderBox ? '_b' : '_p'));
+            var self = this;
+            K.addWindowResizeListener(function () {
+                console.log('render chart ' + self.id + ' onResize ' + element.clientWidth + '/' + element.clientHeight);
+                element.innerHTML = self.renderChart(element.clientWidth, element.clientHeight);
+                self.animate(self);
+            });
+            element.innerHTML = self.renderChart(element.clientWidth, element.clientHeight);
+            self.animate(self);
+        };
+        this.animate = function (self) {
+            var onUpdate = function (progress) {
+//                self.rect1.animateHeight(0, 100, progress);
+//                self.rect2.animateHeight(0, -50, progress);
+//                self.rect3.animateHeight(100, 0, progress);
+//                self.rect4.animateHeight(-50, 0, progress);
+                self.rect1.updateHeight(progress);
+                self.rect2.updateHeight(progress);
+                self.rect3.updateHeight(progress);
+                self.rect4.updateHeight(progress);
+            };
+            var animationCompleted = function () {
+                console.info('animation completed');
+            };
+            Common.animate(1000, onUpdate, animationCompleted);
         };
 
 
