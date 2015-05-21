@@ -261,18 +261,23 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
                     return grad;
                 }
     };
-    m.CoordinateSystem = function (originX, originY) {
-        //var originX = originX;
-        //var originY = originY;
+    m.CoordinateSystem = function (originX, originY, scaleX, scaleY) {
 
         var x = function (x) {
-            return originX + x;
+            return originX + x * scaleX;
         };
         var y = function (y) {
-            return originY - y;
+            return originY - y * scaleY;
         };
-        return {x: x, y: y};
+        var width = function (widthParam) {
+            return widthParam * scaleX;
+        };
+        var height = function (heightParam) {
+            return heightParam * scaleY;
+        };
+        return {x: x, y: y, width: width, height: height};
     };
+    /*deprecated*/
     this.rect = function (x, y, width, height, rx, ry, id, attributes, inner) {
         if (height < 0) {
             return '<rect id="' + id + '" ' + 'x="' + this.x(x) + '" ' + 'y="' + this.y(y)
@@ -280,6 +285,11 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
         }
         return '<rect id="' + id + '" ' + 'x="' + this.x(x) + '" ' + 'y="' + this.y(y) + '" ' + 'width="' + width + '" ' + 'height="' + height + '" ' + attributes + 'rx="' + rx + '" ry="' + ry + '">' + inner + '</rect>';
     };
+    /**
+     * Helper method to append each array element of the styles parameter. The method appends each non-empty style and separates with ;
+     * @param {type} styles
+     * @returns {String}
+     */
     var renderStyles = function (styles) {
         var rendered = '';
         if (Common.isDef(styles)) {
@@ -300,10 +310,14 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
     }
     m.Rect = function (cs, id, x, y, width, height, inner, options) {
         options = Common.valueOrDefault(options, {});
-        
         var withHeightAnim = function (fromHeight, toHeight) {
-            this.fromHeight = fromHeight;
-            this.toHeight = toHeight;
+            this.fromHeight = cs.height(fromHeight);
+            this.toHeight = cs.height(toHeight);
+            return this;
+        };
+        var withWidthAnim = function (fromWidth, toWidth) {
+            this.fromWidth = cs.width(fromWidth);
+            this.toWidth = cs.width(toWidth);
             return this;
         };
         var render = function () {
@@ -321,30 +335,52 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
             var ry = Common.isDef(options.ry) ? 'ry="' + options.ry + '" ' : '';
 
             console.info(styles);
-            var y = height >= 0 ? cs.y(y) - height : cs.y(y);
-            return '<rect id="' + id + '" ' + 'x="' + cs.x(x) + '" ' + 'y="' + y + '" ' + rx + ry
-                    + 'width="' + width + '" ' + 'height="' + height + '"'
+            var calculatedY = height >= 0 ? cs.y(y) - cs.height(height) : cs.y(y);
+            return '<rect id="' + id + '" ' + 'x="' + cs.x(x) + '" ' + 'y="' + calculatedY + '" ' + rx + ry
+                    + 'width="' + cs.width(width) + '" ' + 'height="' + Math.abs(cs.height(height)) + '"'
                     + styles
                     + '>'
                     + inner + '</rect>';
 
         };
-        var updateHeight = function (progress) {
-            animateHeight(this.fromHeight, this.toHeight, progress);
-        }
+        var animate = function (progress) {
+            if (Common.isDef(this.fromHeight) && Common.isDef(this.toHeight)) {
+                animateHeight(this.fromHeight, this.toHeight, progress);
+            }
+            if (Common.isDef(this.fromWidth) && Common.isDef(this.toWidth)) {
+                animateWidth(this.fromWidth, this.toWidth, progress);
+            }
+        };
+        var animateWidth = function (fromWidth, toWidth, progress) {
+
+            var el = document.getElementById(id);
+            var newWidth = (toWidth - fromWidth) * progress + fromWidth;
+            if (newWidth >= 0) {//positive width means the rect origin is in the bottom left corner 
+                el.setAttribute('x', cs.x(x));
+            } else {
+                //negative width means the rect origin is in the bottom right corner. To draw
+                // we need to calculate the bottom left corner
+                el.setAttribute('x', cs.x(x) - newWidth);
+            }
+            el.setAttribute('width', Math.abs(newWidth));
+        };
         var animateHeight = function (fromHeight, toHeight, progress) {
 
             var el = document.getElementById(id);
             var newHeight = (toHeight - fromHeight) * progress + fromHeight;
             if (newHeight >= 0) {//positive height means the rect origin is in the bottom left corner and to draw this we must exchange height and y
                 el.setAttribute('y', cs.y(y) - newHeight);
-                el.setAttribute('height', newHeight);
+
             } else { //negative height means the rect origin is in the top left corner
                 el.setAttribute('y', cs.y(y));
-                el.setAttribute('height', -newHeight);
             }
+            el.setAttribute('height', Math.abs(newHeight));
         };
-        return {render: render, withHeightAnim: withHeightAnim, animateHeight: animateHeight, updateHeight: updateHeight};
+        return {render: render,
+            animate: animate,
+            withWidthAnim: withWidthAnim,
+            withHeightAnim: withHeightAnim,
+            animateHeight: animateHeight};
     }
     /**
      * Transforms a star-like data array into a cross table which is organized as array of dimensions and containing the series values.
@@ -436,6 +472,7 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
             this.rectToAnimateId = [];
             this.rectToAnimateHeight = [];
             this.rectToAnimateY;
+            this.rects=[];
         };
         this.renderInner = function () {
             K.registerComponentForAttaching(this);
@@ -545,6 +582,7 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
             var slotWidth = Math.round(this.areaWidth / (itemCount * (series.length + 1)));
             var colWidth = Math.round(slotWidth * 0.75);
             var c = new Coord(this.areaX, this.areaY);
+            
             this.rectToAnimateY = this.areaY;
 
             var chart = '<svg width="100%" height="100%">';
@@ -562,6 +600,8 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
 
             //calculate rendering scale
             var scale = (this.areaHeight - 60) / (maxValue - modelObj.minValue);
+            var cs = new m.CoordinateSystem(this.areaX, this.areaY, 1, scale);
+
             var valueRange = maxValue - modelObj.minValue;
             // render y-Axis with values
             this.yAxisStepCount = Common.valueOrDefault(this.yAxisStepCount, 5);
@@ -594,20 +634,29 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
                     var value = modelItem[series[serie]];
                     var pxHeight = Math.round(value * scale);
                     this.rectToAnimateId[col] = this.id + 'rect_' + col;
-                    console.log('registered rect with id ' + this.rectToAnimateId[col] + ' for animation');
+                    //console.log('registered rect with id ' + this.rectToAnimateId[col] + ' for animation');
                     this.rectToAnimateHeight[col] = pxHeight;
+                    var newColRect = new m.Rect(cs, this.id + '_rect_' + col, x, yOffset, colWidth, 0,
+                            '<title>' + dimensionNameText + ',' + series[serie] + '</title>', {
+                        bgColor: m.ColorSchemes.SPRING[seriesItemNum],
+                        strokeWidth: 0.2,
+                        strokeColor: 'black',
+                        fillOpacity: 0.6,
+                        rx: 2,
+                        ry: 2
+                    });
+                    newColRect.withHeightAnim(0,value);
+                    this.rects[col]=newColRect;
                     var colRect = c.rect(x, yOffset, colWidth, 0, 0, 0, this.id + 'rect_' + col,
                             'stroke-width="0" fill="' + m.ColorSchemes.SPRING[seriesItemNum] + '" ',
                             '<title>' + dimensionNameText + ',' + series[serie] + '</title>');
-                    //                    var colRect = c.animatedRect(x, 0, colWidth, pxHeight, this.id + 'rect_' + col,
-                    //                            'stroke-width="0" fill="' + m.ColorSchemes.SPRING[seriesItemNum] + '" ',
-                    //                            '<title>' + dimensionNameText + ',' + series[serie] + '</title>');
-                    //                   
                     // firstAggr[key] / maxValue * this.height;
                     //                    var valueText = c.text(x + slotWidth / 2 + 5, pxHeight + 30, 'style="writing-mode: tb;text-anchor: middle"', value.toFixed(2));
                     var valueText = c.verticalText(x + slotWidth / 2 + 2, pxHeight + 10, '', value.toFixed(0));
 
-                    chart += colRect + valueText;
+                    //chart += colRect + valueText;
+                    chart += newColRect.render() + valueText;
+                    
                     col++;
                     seriesItemNum++;
                     x += slotWidth;
@@ -635,13 +684,20 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
             K.addWindowResizeListener(function () {
                 console.log('render chart ' + self.id + ' onResize ' + element.clientWidth + '/' + element.clientHeight);
                 element.innerHTML = self.renderChart(element.clientWidth, element.clientHeight);
-                self.animate(self);
+                //self.animate(self);
+                Common.animateAll(2000, animationCompleted, self.rects);
             });
             element.innerHTML = self.renderChart(element.clientWidth, element.clientHeight);
-            self.animate(self);
+            //self.animate(self);
+             var animationCompleted = function () {
+                console.info('animation completed');
+            };
+            Common.animateAll(2000, animationCompleted, self.rects);
         };
         this.animate = function (self) {
             var onUpdate = function (progress) {
+                 
+                
                 if (self.rectToAnimateId.length > 0) {
                     //                console.log('Update elements '+self.rectToAnimateId[0]+' and followingly with progress='+progress);
                 }
@@ -709,23 +765,26 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
          * @returns returns
          */
         this.renderChart = function (componentWidth, componentHeight) {
-            var cs = new m.CoordinateSystem(0, componentHeight);
+            var cs = new m.CoordinateSystem(0, componentHeight, 1, 1);
             var chart = '<svg width="100%" height="100%">';
-            chart += '<defs>' +  m.Gradients.LINEAR_GRAY + m.Gradients.LINEAR_LIGHT_GRAY + '</defs>';
-        
+            chart += '<defs>' + m.Gradients.LINEAR_GRAY + m.Gradients.LINEAR_LIGHT_GRAY + '</defs>';
+
             var y = 100;
-            this.rect1 = new m.Rect(cs, 'id1', 10, y, 20, 0, '', {
+            this.rect1 = new m.Rect(cs, 'id1', 20, y, 20, 0, '', {
                 bgColor: 'green',
-                strokeWidth: 0.4,
+                strokeWidth: 0.2,
                 strokeColor: 'black',
                 fillOpacity: 0.5,
                 rx: 2,
                 ry: 2
-            })
-                    .withHeightAnim(0, 200);
-            this.rect2 = new m.Rect(cs, 'id2', 40, y, 20, 0, '',{bgColor: 'url(#LINEAR_LIGHT_GRAY)',strokeColor:'black'}).withHeightAnim(0, -100);
+            });
+            this.rect1.withHeightAnim(0, 200).withWidthAnim(0, 20);
+            this.rect2 = new m.Rect(cs, 'id2', 40, y, 20, 0, '', {
+                bgColor: 'url(#LINEAR_LIGHT_GRAY)',
+                strokeWidth: 0.2,
+                strokeColor: 'black'}).withHeightAnim(0, -100);
             this.rect3 = new m.Rect(cs, 'id3', 70, y, 20, 100, '').withHeightAnim(100, 10);
-            this.rect4 = new m.Rect(cs, 'id4', 110, y, 20, -50, '', {bgColor: 'orange', ry: 50}).withHeightAnim(-50, 20);
+            this.rect4 = new m.Rect(cs, 'id4', 110, y, 20, -50, '', {bgColor: 'orange', ry: 50}).withHeightAnim(-50, -20);
             chart += this.rect1.render();
             chart += this.rect2.render();
             chart += this.rect3.render();
@@ -745,21 +804,37 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
             self.animate(self);
         };
         this.animate = function (self) {
-            var onUpdate = function (progress) {
+            var onComplete = function () {
+                console.log('chain completed');
+            };
+            Common.animateChain(onComplete,
+                    [
+                        {duration: '500', objects: [this.rect1, this.rect2]},
+                        {duration: '1500', objects: [this.rect3]},
+                        {duration: '300', objects: [this.rect4]}
+                    ]
+                    );
+//            var animationCompleted = function () {
+//                console.info('animation completed');
+//                var animationCompleted2 = function () {
+//
+//                };
+//                Common.animateAll(2000, animationCompleted2, [self.rect3, self.rect4]);
+//            };
+            // Common.animateAll(1000, animationCompleted, [this.rect1, this.rect2]);
+//            var onUpdate = function (progress) {
 //                self.rect1.animateHeight(0, 100, progress);
 //                self.rect2.animateHeight(0, -50, progress);
 //                self.rect3.animateHeight(100, 0, progress);
 //                self.rect4.animateHeight(-50, 0, progress);
-                self.rect1.updateHeight(progress);
-                self.rect2.updateHeight(progress);
-                self.rect3.updateHeight(progress);
-                self.rect4.updateHeight(progress);
-            };
-            var animationCompleted = function () {
-                console.info('animation completed');
-            };
-            Common.animate(1000, onUpdate, animationCompleted);
+//                self.rect1.updateHeight(progress);
+//                self.rect2.updateHeight(progress);
+//                self.rect3.updateHeight(progress);
+//                self.rect4.updateHeight(progress);
         };
+
+        //Common.animate(1000, onUpdate, animationCompleted);
+//        };
 
 
     });

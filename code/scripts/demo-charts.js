@@ -167,6 +167,8 @@ require(["common", "keziajs", "keziajs-charts"], function (common, K, KC) {
         facts: ['Population'],
         model: model
     });
+    var onComplete=function(){};
+   
     var responsiveColLayout = new K.ResponsiveColLayout();
     responsiveColLayout.addComponent(colChart, 400, K.WidgetPosition.fill);
     responsiveColLayout.addComponent(colChart2, 400, K.WidgetPosition.fill);

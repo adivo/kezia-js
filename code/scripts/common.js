@@ -13,12 +13,55 @@ define(["class_require-mod"], function (OO, Common, Tags, K) {
             };
             this.stop = function () {
                 var end = new Date().getTime();
-                return startTime - end;
+                return this.startTime - end;
             };
+
         }),
+        /**
+         Common.animateChain(onComplete,
+         [ {duration:'500',objects:['rect1','rect2']},
+         {duration:'1500',objects:['rect1','rect2']} ]
+         );
+         */
+        animateChain: function (onCompleteFunc, chainArray) {
+            var i = 0;
+            var onComplete = function () {
+                i++;
+                if (i < chainArray.length) {
+                    animateNext();
+                }else{
+                    onCompleteFunc();
+                }
+            };
+            var animateNext = function () {
+
+                if (i < chainArray.length) {
+                    var dur = chainArray[i].duration;
+                    var objects = chainArray[i].objects;
+
+                    common.animateAll(dur, onComplete, objects)
+                }
+               
+            };
+             animateNext();
+        },
+        /**
+         * Animates the given array of animationObjects. Each of them must implement the method animate=function(progress){}
+         * @param {type} durationInMs
+         * @param {type} onCompleteFunc
+         * @param {type} animationObjects
+         * @returns {undefined}
+         */
+        animateAll: function (durationInMs, onCompleteFunc, animationObjects) {
+            var onUpdate = function (progress) {
+                for (var i = 0; i < animationObjects.length; i++) {
+                    animationObjects[i].animate(progress);
+                }
+            }
+            common.animate(durationInMs, onUpdate, onCompleteFunc);
+        },
         animate: function (durationInMs, onUpdate, onCompleteFunc) {
             var animStartTime = new Date().getTime();
-
             var render = function () {
                 var now = new Date().getTime();
                 var dt = now - animStartTime;
@@ -28,11 +71,11 @@ define(["class_require-mod"], function (OO, Common, Tags, K) {
                     requestID = requestAnimationFrame(render);
                 } else {
                     if (progress !== 1) {
-                        progress = 1;//makes sure the last update is with exactly 1
+                        progress = 1; //makes sure the last update is with exactly 1
                         onUpdate(progress);
                         requestID = requestAnimationFrame(render);
                     }
-                    console.log("stopped progress at " + progress);
+                    //console.log("stopped progress at " + progress);
                     stopAnimation();
                 }
             };
@@ -43,25 +86,8 @@ define(["class_require-mod"], function (OO, Common, Tags, K) {
                 }
                 onCompleteFunc();
             };
-
             var requestID = requestAnimationFrame(render);
-
-
         },
-//        animate: function (renderingFunc, durationInMs) {
-//            console.log('animate');
-//            var step = 1 / (durationInMs / 100);
-//            var progress = 0;
-//            var timer = setInterval(function () {
-//                if (progress < 1) {
-//                    progress += step;
-//                    console.log('animate with progress=' + progress);
-//                    renderingFunc(progress);
-//                } else {
-//                    clearInterval(timer);
-//                }
-//            }, 100);
-//        },
         roundToNextPowerOf10: function (value) {
             if (value === 0) {
                 return 0;

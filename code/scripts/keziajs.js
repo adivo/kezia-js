@@ -230,10 +230,10 @@ pr.windowResizeListener=[];
                     this[properties[j]] = styleObj[properties[j]];
                 }
                 console.log('\n\nProperties for ' + cssClass);
-                var thisProps = Object.getOwnPropertyNames(this);
-                for (j = 0; j < thisProps.length; j++) {
-                    console.log('this "' + thisProps[j] + '"');
-                }
+               // var thisProps = Object.getOwnPropertyNames(this);
+                //for (j = 0; j < thisProps.length; j++) {
+                //   console.log('this "' + thisProps[j] + '"');
+                //}
             }
         };
         this.getId = function () {
