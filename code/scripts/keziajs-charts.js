@@ -487,9 +487,7 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
          * @returns returns
          */
         this.renderChart = function (componentWidth, componentHeight) {
-            //var ccc = new pr.Coord1();
-
-            //ccc.testFunct();
+            
             var modelObj = new m.ChartModel(this.model, {
                 dimensionInd: 0,
                 seriesInd: 1,
@@ -499,13 +497,11 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
             var maxValue = modelObj.maxValue;
 
             //Create an index of the dimensions
-            var dimIndex = {};
-            for (var di = 0; di < this.dimensions.length; di++) {
-                dimIndex[this.dimensions[di]] = di;
-            }
+//            var dimIndex = {};
+//            for (var di = 0; di < this.dimensions.length; di++) {
+//                dimIndex[this.dimensions[di]] = di;
+//            }
             var itemCount = Object.keys(modelItems).length;
-            //            var series = ['Africa', 'Europe', 'Asia', 'America', 'Oceania'];
-            //            var seriesCount = Object.keys(series).length;
             var series = modelObj.seriesItems;
             var seriesCount = Object.keys(modelObj.seriesItems).length;
             this.legendBgColor = Common.valueOrDefault(this.legendBgColor, '#f0f0f0');
@@ -585,11 +581,15 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
             
             this.rectToAnimateY = this.areaY;
 
+            //Rendering
             var chart = '<svg width="100%" height="100%">';
+            //Define gradients
             chart += '<defs>' + (Common.isDef(this.chartBgGradient) ? this.chartBgGradient.render() : '') + m.Gradients.LINEAR_GRAY + m.Gradients.LINEAR_LIGHT_GRAY + '</defs>';
-            //chart area
+            //Chart area
             this.chartBgColor = Common.valueOrDefault(this.chartBgColor, '#f0f0f0');
-            chart += '<rect x="' + c.x(0) + '" y="' + c.y(this.areaHeight) + '" width="' + (this.areaWidth) + '" height="' + (this.areaHeight) + '" rx="02" ry="2"' + ' style="fill:' + (Common.isUndef(this.chartBgGradient) ? this.chartBgColor : 'url(#' + this.chartBgGradient.id + ')') + ';' + ' stroke: #a0a0a0;' + ' stroke-width: 0;" />';
+            chart += '<rect x="' + c.x(0) + '" y="' + c.y(this.areaHeight) + '" width="' + (this.areaWidth) + '" height="' + (this.areaHeight) + '" rx="02" ry="2"' 
+                    + ' style="fill:' + (Common.isUndef(this.chartBgGradient) ? this.chartBgColor : 'url(#' + this.chartBgGradient.id + ')') + ';' 
+                    + ' stroke: #a0a0a0;' + ' stroke-width: 0;" />';
             if (Common.isDef(this.areaBgImage)) {
                 chart += '<image xlink:href="' + this.areaBgImage + '" x="' + c.x(0) + '" y="' + c.y(this.areaHeight) + '" height="' + this.areaHeight + 'px" width="' + this.areaWidth + 'px"/>';
             }
@@ -600,7 +600,7 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
 
             //calculate rendering scale
             var scale = (this.areaHeight - 60) / (maxValue - modelObj.minValue);
-            var cs = new m.CoordinateSystem(this.areaX, this.areaY, 1, scale);
+            var chartCS = new m.CoordinateSystem(this.areaX, this.areaY, 1, scale);
 
             var valueRange = maxValue - modelObj.minValue;
             // render y-Axis with values
@@ -636,7 +636,7 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
                     this.rectToAnimateId[col] = this.id + 'rect_' + col;
                     //console.log('registered rect with id ' + this.rectToAnimateId[col] + ' for animation');
                     this.rectToAnimateHeight[col] = pxHeight;
-                    var newColRect = new m.Rect(cs, this.id + '_rect_' + col, x, yOffset, colWidth, 0,
+                    var newColRect = new m.Rect(chartCS, this.id + '_rect_' + col, x, yOffset, colWidth, 0,
                             '<title>' + dimensionNameText + ',' + series[serie] + '</title>', {
                         bgColor: m.ColorSchemes.SPRING[seriesItemNum],
                         strokeWidth: 0.2,
