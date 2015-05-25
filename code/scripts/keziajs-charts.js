@@ -478,9 +478,9 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
 
             this.height = 400;
 
-            this.rectToAnimateId = [];
-            this.rectToAnimateHeight = [];
-            this.rectToAnimateY;
+//            this.rectToAnimateId = [];
+//            this.rectToAnimateHeight = [];
+//            this.rectToAnimateY;
             this.rects = [];
         };
         this.renderInner = function () {
@@ -505,11 +505,6 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
             var modelItems = modelObj.model;
             var maxValue = modelObj.maxValue;
 
-            //Create an index of the dimensions
-//            var dimIndex = {};
-//            for (var di = 0; di < this.dimensions.length; di++) {
-//                dimIndex[this.dimensions[di]] = di;
-//            }
             var itemCount = Object.keys(modelItems).length;
             var series = modelObj.seriesItems;
             var seriesCount = Object.keys(modelObj.seriesItems).length;
@@ -536,7 +531,7 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
             this.subTitleHeight = Common.isDef(this.subTitle) ? Common.valueOrDefault(this.subTitleHeight, 20) : 0;
             this.legendPosition = Common.valueOrDefault(this.caption.position, m.LegendPosition.TOP);
 
-            var cc = new pr.CoordinateSystem(0, componentHeight,1,1);
+            var cc = new pr.CoordinateSystem(0, componentHeight, 1, 1);
             //legend
             var seriesColors = m.ColorSchemes.SPRING;
 
@@ -585,14 +580,16 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
 
             var slotWidth = Math.round(this.areaWidth / (itemCount * (series.length + 1)));
             var colWidth = Math.round(slotWidth * 0.75);
-            var c = new pr.CoordinateSystem(this.areaX, this.areaY,1,1);
+            var c = new pr.CoordinateSystem(this.areaX, this.areaY, 1, 1);
 
             this.rectToAnimateY = this.areaY;
 
             //Rendering
             var chart = '<svg width="100%" height="100%">';
+
             //Define gradients
             chart += '<defs>' + (Common.isDef(this.chartBgGradient) ? this.chartBgGradient.render() : '') + m.Gradients.LINEAR_GRAY + m.Gradients.LINEAR_LIGHT_GRAY + '</defs>';
+
             //Chart area
             this.chartBgColor = Common.valueOrDefault(this.chartBgColor, '#f0f0f0');
             chart += '<rect x="' + c.x(0) + '" y="' + c.y(this.areaHeight) + '" width="' + (this.areaWidth) + '" height="' + (this.areaHeight) + '" rx="02" ry="2"'
@@ -606,33 +603,39 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
             chart += pr.text(cc, compCenterX, componentHeight - this.titleHeight / 2, 'style="text-anchor: middle"', this.title);
             chart += pr.text(cc, compCenterX, componentHeight - this.titleHeight - this.subTitleHeight / 2, 'style="font-size: 10px;text-anchor: middle"', this.subTitle);
 
-            //calculate rendering scale
-            var scale = (this.areaHeight - 60) / (maxValue - modelObj.minValue);
-            
+            //Calculate rendering scale
+            var scale = (this.areaHeight - 80) / (maxValue - modelObj.minValue);
+
             var valueRange = maxValue - modelObj.minValue;
+            
             // render y-Axis with values
             this.yAxisStepCount = Common.valueOrDefault(this.yAxisStepCount, 5);
-            var yAxisStepInValueUnits = Common.roundToNextPowerOf10(Math.round(valueRange / this.yAxisStepCount));
-            var yAxisStepInPx = yAxisStepInValueUnits * scale;
-            var yAxisMinValue = Common.roundToNextPowerOf10(Math.round(modelObj.minValue / this.yAxisStepCount)) * this.yAxisStepCount;
-            if (yAxisMinValue<0){
-                console.log('yAxisMinValue='+yAxisMinValue);
-            }
-            var yAxisMaxValue = Common.roundToNextPowerOf10(modelObj.maxValue);
-            var yAxisValue = yAxisMinValue;
-            var nextPowerOf10 = Common.nextPowerOf10(yAxisMaxValue - yAxisMinValue);
-            var yAxisMajorStep = Math.pow(10, nextPowerOf10);
-            
-            var chartCS = new pr.CoordinateSystem(this.areaX, this.areaY+yAxisMinValue*scale, 1, scale);
+            var yAxisStep = Common.roundToNextPowerOf10(Math.round(valueRange / this.yAxisStepCount));
+            var yAxisMinValuePx = modelObj.minValue * scale;
+            var yAxisMaxValuePx = modelObj.maxValue * scale;
 
-//            var yAxisMajorStep=Common.roundToNextPowerOf10((yAxisMaxValue-yAxisMinValue)/10);
-            for (var y = 0; y < this.areaHeight; y += yAxisStepInPx) {
-                chart += pr.line(c, 0, y, this.areaWidth, y, 'stroke:#a0a0a0;stroke-width:0.05');
-//                chart += c.text(-5, y, 'style="text-anchor: end"', Math.round(y / scale));
-                chart += pr.text(c, -5, y, 'style="text-anchor: end"', yAxisValue);
-                yAxisValue += yAxisMajorStep;
+            var yAxisMinPx, yAxisMaxPx;//minimum and maximum to be displayed in pixel
+            if (modelObj.minValue < 0) {
+                yAxisMinPx = yAxisMinValuePx - 40;//space for figure
+            } else {
+                yAxisMinPx = yAxisMinValuePx;
             }
-            var yOffset = -yAxisMinValue * scale;
+            yAxisMaxPx = yAxisMaxValuePx + 40;//space for figure
+
+            var yAxisMinValue = Common.roundToNextPowerOf10(Math.round(modelObj.minValue / this.yAxisStepCount)) * this.yAxisStepCount;
+            var yAxisMaxValue = Common.roundToNextPowerOf10(modelObj.maxValue);
+
+            var chartCS = new pr.CoordinateSystem(this.areaX, this.areaY + yAxisMinPx, 1, scale);
+
+            //render y-axis labels and horizontal lines
+            for (var value = 0; value < yAxisMaxValue; value += yAxisStep) {
+                chart += pr.line(chartCS, 0, value, this.areaWidth, value, 'stroke:#a0a0a0;stroke-width:0.05');
+                chart += pr.text(chartCS, -5, value - 25, 'style="text-anchor: end"', value);
+            }
+            for (var value = -yAxisStep; value > (yAxisMinValue-25/scale); value -= yAxisStep) {
+                chart += pr.line(chartCS, 0, value, this.areaWidth, value, 'stroke:#a0a0a0;stroke-width:0.05');
+                chart += pr.text(chartCS, -5, value - 25, 'style="text-anchor: end"', value);
+            }
             //draw columns
             var col = 0;
             var seriesItemNum = 0;
@@ -645,11 +648,7 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
                 var modelItem = modelItems[modelItemKey];
                 for (var serie in series) {
                     var value = modelItem[series[serie]];
-                    var pxHeight = Math.round(value * scale);
-                    this.rectToAnimateId[col] = this.id + 'rect_' + col;
-                    //console.log('registered rect with id ' + this.rectToAnimateId[col] + ' for animation');
-                    this.rectToAnimateHeight[col] = pxHeight;
-                    var newColRect = new pr.Rect(chartCS, this.id + '_rect_' + col, x, yOffset, colWidth, 0,
+                    var newColRect = new pr.Rect(chartCS, this.id + '_rect_' + col, x, 0, colWidth, 0,
                             '<title>' + dimensionNameText + ',' + series[serie] + '</title>', {
                         bgColor: m.ColorSchemes.SPRING[seriesItemNum],
                         strokeWidth: 0.2,
@@ -660,14 +659,8 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
                     });
                     newColRect.withHeightAnim(0, value);
                     this.rects[col] = newColRect;
-//                    var colRect = pr.rect(c,x, yOffset, colWidth, 0, 0, 0, this.id + 'rect_' + col,
-//                            'stroke-width="0" fill="' + m.ColorSchemes.SPRING[seriesItemNum] + '" ',
-//                            '<title>' + dimensionNameText + ',' + series[serie] + '</title>');
-                    // firstAggr[key] / maxValue * this.height;
-                    //                    var valueText = c.text(x + slotWidth / 2 + 5, pxHeight + 30, 'style="writing-mode: tb;text-anchor: middle"', value.toFixed(2));
-                    var valueText = pr.verticalText(c, x + slotWidth / 2 + 2, pxHeight + 10, '', value.toFixed(0));
+                    var valueText = pr.verticalText(chartCS, x + slotWidth / 2 + 2, (value < 0 ? value - 35 / scale : value + 5 / scale), '', value.toFixed(0));
 
-                    //chart += colRect + valueText;
                     chart += newColRect.render() + valueText;
 
                     col++;
@@ -680,14 +673,11 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
             //X-Axis Title
             chart += pr.text(c, this.areaWidth / 2, -this.xAxisHeight - 5, 'style="text-anchor: middle"', this.dimensions[0]);
             //Y-Axis Title
-            //chart += c.
-
             var legend = pr.renderLegend(cc, series, seriesColors, this.legendX, this.legendY, this.legendWidth, this.caption);
             chart += legend.svgCode;
             return chart + '</svg>';
         };
         this.onAttached = function () {
-            console.log('Chart ' + this.id + ' onAttached this.rectToAnimateId[0]=' + this.rectToAnimateId[0]);
             var onMouseOver = function (e) {
                 console.info('mouse over ' + e.currentTarget.id);
             };
@@ -706,40 +696,6 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
                 console.info('animation completed');
             };
             Common.animateAll(2000, animationCompleted, self.rects);
-        };
-        this.animate = function (self) {
-            var onUpdate = function (progress) {
-
-
-                if (self.rectToAnimateId.length > 0) {
-                    //                console.log('Update elements '+self.rectToAnimateId[0]+' and followingly with progress='+progress);
-                }
-                for (var i = 0; i < self.rectToAnimateId.length; i++) {
-
-                    var el = document.getElementById(self.rectToAnimateId[i]);
-                    //                with polygon
-                    //                var points = el.getAttribute('points').split(',').join(' ').trim().split(' ');
-                    //                points[5] = Number(points[5]) - 20;
-                    //                points[7] = Number(points[7]) - 20;
-
-                    //with rect
-                    var newHeight = self.rectToAnimateHeight[i] * progress;
-                    el.setAttribute('y', self.rectToAnimateY - newHeight);
-
-                    el.setAttribute('height', Math.abs(newHeight));
-                    //                var pointsStr = '';
-                    //                var j = 0;
-                    //                while (j < points.length - 1) {
-                    //                    pointsStr += points[j] + ',' + points[j + 1] + ' ';
-                    //                    j += 2;
-                    //                }
-                    //                el.setAttribute('points', pointsStr);
-                }
-            };
-            var animationCompleted = function () {
-                console.info('animation completed');
-            };
-            Common.animate(1000, onUpdate, animationCompleted);
         };
 
 
