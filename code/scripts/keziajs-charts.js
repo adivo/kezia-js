@@ -138,7 +138,55 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
             withHeightAnim: withHeightAnim,
             animateHeight: animateHeight};
     };
-    pr.text = function (cs, x, y, attributes, text, options) {
+    /**
+     * 
+     * @param {type} cs
+     * @param {type} x
+     * @param {type} y
+     * @param {type} text
+     * @param {type} options supported options are:
+     text-anchor: start, middle or end
+     fill: none or color
+     stroke: color
+     font-size: e.g. 24px
+     letter-spacing (distance between glyphs): e.g. 2
+     kerning (distance between glyphs): e.g. 2
+     word-spacing: e.g. 8
+     writing-mode: e.g. tb for top to bottom
+     * @param {attributes} 
+     *                attributes objects for all supported svg attributes 
+     *                e.g. {transform: rotate(xOrigin, yOrigin, rotationAngle)} 
+     * @returns {the Text object}
+     */
+    pr.Text = function (cs, id, x, y, text, styleOptions, attributes) {
+        styleOptions = Common.valueOrDefault(styleOptions, {});
+        attributes = Common.valueOrDefault(attributes, {});
+
+        var render = function () {
+            var attr = renderAttributeObj(attributes);
+            var styles = renderStyleObj(styleOptions);
+            return '<text id="' + id + '" x="' + cs.x(x) + '" y="' + cs.y(y) + '" ' + attr + ' ' + styles + '>' + text + '</text>';
+        };
+        var withOpacityAnim = function (fromOpacity, toOpacity) {
+            this.fromOpacity = fromOpacity;
+            this.toOpacity = toOpacity;
+            return this;
+        };
+        var animate = function (progress) {
+            if (Common.isDef(this.fromOpacity) && Common.isDef(this.toOpacity)) {
+                animateOpacity(this.fromOpacity, this.toOpacity, progress);
+            }
+        };
+        var animateOpacity = function (fromOpacity, toOpacity, progress) {
+            var opacity = (toOpacity - fromOpacity) * progress + fromOpacity;
+            document.getElementById(id).style.opacity = opacity;
+        };
+        return {
+            render: render,
+            animate: animate,
+            withOpacityAnim: withOpacityAnim};
+    };
+    pr.renderText = function (cs, x, y, attributes, text, options) {
         if (Common.isUndef(options)) {
             options = {};
         }
@@ -207,7 +255,7 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
             y = posY - 5;
             for (var i = 0; i < seriesCount; i++) {
                 var seriesColor = pr.renderRect(cs, '', posX + 5, y, 10, 10, 2, 2, '', {'stroke-width': 0, fill: seriesColors[i]});
-                var seriesName = pr.text(cs, posX + 20, y - 10, '', series[i], 'style="font-family:Arial;font-size:12;fill:' + fontColor + ';text-anchor: middle"');
+                var seriesName = pr.renderText(cs, posX + 20, y - 10, '', series[i], 'style="font-family:Arial;font-size:12;fill:' + fontColor + ';text-anchor: middle"');
                 code += seriesColor + seriesName;
                 y -= rowHeight;
             }
@@ -241,7 +289,7 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
                 for (var col = 0; col < itemX[row].length; col++) {
                     var x = xPad + itemX[row][col];
                     var seriesColor = pr.renderRect(cs, '', x, y, 10, 10, 2, 2, '', {'stroke-width': 0, fill: seriesColors[i]});
-                    var seriesName = pr.text(cs, x + 15, y - 10, 'style="font-family:Arial;font-size:12;fill:' + fontColor + '"', series[i]);
+                    var seriesName = pr.renderText(cs, x + 15, y - 10, 'style="font-family:Arial;font-size:12;fill:' + fontColor + '"', series[i]);
                     code += seriesColor + seriesName;
                     i++;
                 }
@@ -390,6 +438,22 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
             rendered = ' style="' + rendered + '"';
         }
         return rendered;
+    };
+    var renderAttributeObj = function (attributes) {
+        var rendered = '';
+        if (Common.isDef(attributes)) {
+            var keys = Object.keys(attributes);
+            for (var i = 0; i < keys.length; i++) {
+                var attr = attributes[keys[i]];
+                if (attr !== '') {
+                    if (rendered.length > 0) {
+                        rendered += ' ';
+                    }
+                    rendered += keys[i] + '="' + attributes[keys[i]] + '"';
+                }
+            }
+        }
+        return rendered;
     }
     /**
      * Transforms a star-like data array into a cross table which is organized as array of dimensions and containing the series values.
@@ -478,10 +542,8 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
 
             this.height = 400;
 
-//            this.rectToAnimateId = [];
-//            this.rectToAnimateHeight = [];
-//            this.rectToAnimateY;
             this.rects = [];
+            this.texts = [];
         };
         this.renderInner = function () {
             K.registerComponentForAttaching(this);
@@ -600,14 +662,14 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
             }
 
             var compCenterX = componentWidth / 2;
-            chart += pr.text(cc, compCenterX, componentHeight - this.titleHeight / 2, 'style="text-anchor: middle"', this.title);
-            chart += pr.text(cc, compCenterX, componentHeight - this.titleHeight - this.subTitleHeight / 2, 'style="font-size: 10px;text-anchor: middle"', this.subTitle);
+            chart += pr.renderText(cc, compCenterX, componentHeight - this.titleHeight / 2, 'style="text-anchor: middle"', this.title);
+            chart += pr.renderText(cc, compCenterX, componentHeight - this.titleHeight - this.subTitleHeight / 2, 'style="font-size: 10px;text-anchor: middle"', this.subTitle);
 
             //Calculate rendering scale
             var scale = (this.areaHeight - 80) / (maxValue - modelObj.minValue);
 
             var valueRange = maxValue - modelObj.minValue;
-            
+
             // render y-Axis with values
             this.yAxisStepCount = Common.valueOrDefault(this.yAxisStepCount, 5);
             var yAxisStep = Common.roundToNextPowerOf10(Math.round(valueRange / this.yAxisStepCount));
@@ -630,11 +692,11 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
             //render y-axis labels and horizontal lines
             for (var value = 0; value < yAxisMaxValue; value += yAxisStep) {
                 chart += pr.line(chartCS, 0, value, this.areaWidth, value, 'stroke:#a0a0a0;stroke-width:0.05');
-                chart += pr.text(chartCS, -5, value - 25, 'style="text-anchor: end"', value);
+                chart += pr.renderText(chartCS, -5, value - 25, 'style="text-anchor: end"', value);
             }
-            for (var value = -yAxisStep; value > (yAxisMinValue-25/scale); value -= yAxisStep) {
+            for (var value = -yAxisStep; value > (yAxisMinValue - 25 / scale); value -= yAxisStep) {
                 chart += pr.line(chartCS, 0, value, this.areaWidth, value, 'stroke:#a0a0a0;stroke-width:0.05');
-                chart += pr.text(chartCS, -5, value - 25, 'style="text-anchor: end"', value);
+                chart += pr.renderText(chartCS, -5, value - 25, 'style="text-anchor: end"', value);
             }
             //draw columns
             var col = 0;
@@ -642,7 +704,7 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
             var x = slotWidth / 2;
             for (var modelItemKey in modelItems) {
 
-                var dimensionNameText = pr.text(c, x + slotWidth * series.length / 2, -15, 'style="writing-mode: bt;text-anchor: middle"', modelItemKey);
+                var dimensionNameText = pr.renderText(c, x + slotWidth * series.length / 2, -15, 'style="writing-mode: bt;text-anchor: middle"', modelItemKey);
                 chart += dimensionNameText;
                 var seriesItemNum = 0;
                 var modelItem = modelItems[modelItemKey];
@@ -659,9 +721,21 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
                     });
                     newColRect.withHeightAnim(0, value);
                     this.rects[col] = newColRect;
-                    var valueText = pr.verticalText(chartCS, x + slotWidth / 2 + 2, (value < 0 ? value - 35 / scale : value + 5 / scale), '', value.toFixed(0));
-
-                    chart += newColRect.render() + valueText;
+//                    var valueText = pr.verticalText(chartCS, x + slotWidth / 2 + 2, (value < 0 ? value - 35 / scale : value + 5 / scale), '', value.toFixed(0));
+                    var textX = x + 10;
+                    var textY = (value < 0) ? (value - 35 / scale) : (value + 5 / scale);
+                    var rotation = 'rotate(270,' + chartCS.x(textX) + ',' + chartCS.y(textY) + ')';
+                    var valueTextObj = new pr.Text(chartCS, this.id + '_val_' + col,
+                            textX,
+                            textY,
+                            value.toFixed(0),
+//                            {'opacity':0,'text-anchor': 'start', 'writing-mode': 'tb'}
+                            {'opacity': 0,'font-size':'12px'},
+                    {'transform': rotation}
+                    );
+                    valueTextObj.withOpacityAnim(0, 1);
+                    this.texts[col] = valueTextObj;
+                    chart += newColRect.render() + valueTextObj.render();
 
                     col++;
                     seriesItemNum++;
@@ -671,7 +745,7 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
             }
 
             //X-Axis Title
-            chart += pr.text(c, this.areaWidth / 2, -this.xAxisHeight - 5, 'style="text-anchor: middle"', this.dimensions[0]);
+            chart += pr.renderText(c, this.areaWidth / 2, -this.xAxisHeight - 5, 'style="text-anchor: middle"', this.dimensions[0]);
             //Y-Axis Title
             var legend = pr.renderLegend(cc, series, seriesColors, this.legendX, this.legendY, this.legendWidth, this.caption);
             chart += legend.svgCode;
@@ -688,14 +762,17 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
                 console.log('render chart ' + self.id + ' onResize ' + element.clientWidth + '/' + element.clientHeight);
                 element.innerHTML = self.renderChart(element.clientWidth, element.clientHeight);
                 //self.animate(self);
-                Common.animateAll(2000, animationCompleted, self.rects);
+                Common.animateAll(1000, animationCompleted, self.rects);
             });
             element.innerHTML = self.renderChart(element.clientWidth, element.clientHeight);
             //self.animate(self);
             var animationCompleted = function () {
                 console.info('animation completed');
+                var textAnimCompleted = function () {
+                };
+                Common.animateAll(3000, textAnimCompleted, self.texts);
             };
-            Common.animateAll(2000, animationCompleted, self.rects);
+            Common.animateAll(1000, animationCompleted, self.rects);
         };
 
 
