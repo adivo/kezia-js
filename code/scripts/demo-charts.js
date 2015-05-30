@@ -136,6 +136,7 @@ require(["common", "keziajs", "keziajs-charts"], function (common, K, KC) {
             borderRadius:5,
             position: KC.LegendPosition.TOP
         },
+        columWidthPc:0.5,
         backgroundStyleProperty: '#f8f8f8',
         borderRadiusStyleProperty: '20px',
         //legendBgColor: 'white',
@@ -155,6 +156,7 @@ require(["common", "keziajs", "keziajs-charts"], function (common, K, KC) {
             borderRadius:5,
             position: KC.LegendPosition.BOTTOM
         },
+        columWidthPc:0.95,
         areaBgImage:'img/worldmap_green.jpg',
         backgroundStyleProperty: '#f8f8f8',
         borderRadiusStyleProperty: '10px',

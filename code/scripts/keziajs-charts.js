@@ -64,6 +64,78 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
                 + 'height="' + height + '" '
                 + styles + 'rx="' + rx + '" ry="' + ry + '">' + inner + '</rect>';
     };
+    pr.Tooltip = function () {
+
+
+        var show = function (x, y, width, height, innerHtml) {
+
+            this.fromX = x;
+            this.fromY = y;
+            if (Common.isUndef(this.el)) {
+                this.el = document.createElement('div');
+                this.el.className = Common.css.ABS + ' ' + Common.css.POPUP;
+                //this.el.id = this.id + '_Tooltip';
+                document.body.appendChild(this.el);
+            }
+            this.el.innerHTML = '<div style="padding:10px">' + innerHtml + '</div>';
+            this.el.style.top = y + 'px';
+            this.el.style.left = x + 'px';
+            this.el.style.width = width + 'px';
+            this.el.style.height = height + 'px';
+        }
+        var dispose = function () {
+            document.body.removeChild(this.el);
+            this.el = undefined;
+        }
+        var moveTo = function (toX, toY, durationInMs, width, height, innerHtml) {
+//            var topStr=this.el.style.top;
+//            var leftStr=this.el.style.left;
+//            this.fromX = leftStr.substr(0,leftStr.length-2);
+//            this.fromY = topStr.substr(0,topStr.length-2);
+            this.toX = toX;
+            this.toY = toY;
+
+            var self = this;
+            this.el.style.width = width + 'px';
+            this.el.style.height = height + 'px';
+            if (Common.isUndef(this.anim)) {
+                this.anim = [];
+            }
+            this.anim[this.anim.length] = 'move';
+            var onComplete = function () {
+                self.el.innerHTML = '<div style="padding:10px">' + innerHtml + '</div>';
+                self.fromX = toX;
+            self.fromY=toY;
+            }
+            Common.animateAll(durationInMs, onComplete, [this]);
+        }
+//        var withMoveAnim = function (fromX, fromY, toX, toY) {
+//            this.fromX = fromX;
+//            this.fromY = fromY;
+//            this.toX = toX;
+//            this.toY = toY;
+//            this.anim[this.anim.length] = 'move';
+//        }
+        var animate = function (progress) {
+            console.log('animate tooltip');
+            for (var i = 0; i < this.anim.length; i++) {
+                var animation = this.anim[i];
+
+                if (animation === 'move') {
+                    animateMove(this, progress);
+                }
+            }
+        };
+        var animateMove = function (self, progress) {
+
+            var currX = (self.toX - self.fromX) * progress + self.fromX;
+            var currY = (self.toY - self.fromY) * progress + self.fromY;
+            self.el.style.left = currX + 'px';
+            self.el.style.top = currY + 'px';
+            console.log(' progress=' + progress + ' left=' + self.el.style.left + ' top=' + self.el.style.top);
+        };
+        return {show: show, dispose: dispose, moveTo: moveTo, animate: animate};
+    }
     pr.Rect = function (cs, id, x, y, width, height, inner, options) {
         options = Common.valueOrDefault(options, {});
         var withHeightAnim = function (fromHeight, toHeight) {
@@ -76,6 +148,9 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
             this.toWidth = cs.width(toWidth);
             return this;
         };
+        var setData = function (data) {
+            this.data = data;
+        }
         var render = function () {
 
             var fill = 'fill:' + Common.valueOrDefault(options.bgColor, '#a0a0a0');
@@ -134,6 +209,7 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
         };
         return {render: render,
             animate: animate,
+            setData: setData,
             withWidthAnim: withWidthAnim,
             withHeightAnim: withHeightAnim,
             animateHeight: animateHeight};
@@ -544,6 +620,8 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
 
             this.rects = [];
             this.texts = [];
+
+            this.selectedColumnElement;
         };
         this.renderInner = function () {
             K.registerComponentForAttaching(this);
@@ -570,6 +648,7 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
             var itemCount = Object.keys(modelItems).length;
             var series = modelObj.seriesItems;
             var seriesCount = Object.keys(modelObj.seriesItems).length;
+            this.columWidthPc = Common.valueOrDefault(this.columWidthPc, 0.9);
             this.legendBgColor = Common.valueOrDefault(this.legendBgColor, '#f0f0f0');
             this.legendColor = Common.valueOrDefault(this.legendColor, 'black');
 //          //this.legendBorderColor used too
@@ -641,7 +720,7 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
 
 
             var slotWidth = Math.round(this.areaWidth / (itemCount * (series.length + 1)));
-            var colWidth = Math.round(slotWidth * 0.75);
+            var colWidth = Math.round(slotWidth * this.columWidthPc);
             var c = new pr.CoordinateSystem(this.areaX, this.areaY, 1, 1);
 
             this.rectToAnimateY = this.areaY;
@@ -713,13 +792,15 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
                     var newColRect = new pr.Rect(chartCS, this.id + '_rect_' + col, x, 0, colWidth, 0,
                             '<title>' + dimensionNameText + ',' + series[serie] + '</title>', {
                         bgColor: m.ColorSchemes.SPRING[seriesItemNum],
-                        strokeWidth: 0.2,
-                        strokeColor: 'black',
-                        fillOpacity: 0.6,
-                        rx: 2,
-                        ry: 2
+//                        strokeWidth: 0.2,
+//                        strokeColor: 'black',
+                        fillOpacity: 0.8,
+                        rx: 1,
+                        ry: 1
                     });
+
                     newColRect.withHeightAnim(0, value);
+                    newColRect.setData({value: value, serie: series[serie]});
                     this.rects[col] = newColRect;
 //                    var valueText = pr.verticalText(chartCS, x + slotWidth / 2 + 2, (value < 0 ? value - 35 / scale : value + 5 / scale), '', value.toFixed(0));
                     var textX = x + 10;
@@ -730,7 +811,7 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
                             textY,
                             value.toFixed(0),
 //                            {'opacity':0,'text-anchor': 'start', 'writing-mode': 'tb'}
-                            {'opacity': 0,'font-size':'12px'},
+                            {'opacity': 0, 'font-size': '12px', 'fill': '#606060'},
                     {'transform': rotation}
                     );
                     valueTextObj.withOpacityAnim(0, 1);
@@ -752,11 +833,51 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
             return chart + '</svg>';
         };
         this.onAttached = function () {
+            var self = this;
             var onMouseOver = function (e) {
-                console.info('mouse over ' + e.currentTarget.id);
+                console.info('mouse over ' + e.currentTarget.id + ' ' + e.target.id);
+                var rectId = e.target.id;
+                if (rectId.indexOf('_rect_') > 0) {
+                    var mouseOverCol = rectId.substr(rectId.indexOf('_rect_') + 6);
+                    if (Common.isDef(this.selectedColumnElement)) {
+                        this.selectedColumnElement.style['stroke-width'] = 0;
+                        this.selectedColumnElement.style.stroke = 'none';
+                    }
+
+                    e.target.style.stroke = '#f0f0f0';
+                    e.target.style['stroke-width'] = 2;
+                    this.selectedColumnElement = e.target;
+                    var data = self.rects[mouseOverCol].data;
+                    var innerHtml = '<div style="padding:10px"><div>Serie:' + data.serie + '</div><div>value:' + data.value + '</div></div>';
+                    var rectBoundingClient = e.target.getBoundingClientRect();
+                    var y = (rectBoundingClient.top - 60);
+                    var x = rectBoundingClient.left;
+
+                    if (Common.isDef(this.tooltip)) {
+//                        this.tooltip.dispose();
+//                        this.tooltip = undefined;
+                        this.tooltip.moveTo(x, y, 100, 120, 70, innerHtml);
+//                        var onComplete = function () {
+//                                this.tooltip.setContent(120, 70, innerHtml);
+//                        }
+//                        Common.animateAll(1400, onComplete, [this.tooltip]);
+                    } else {
+                        console.log('Tooltip on rectId ' + rectId + ' created');
+
+                        this.tooltip = new pr.Tooltip();
+                        this.tooltip.show(x, y, 120, 70, innerHtml);
+                    }
+                    // this.tooltip.show(x, y, 120, 70, innerHtml);
+                } else {
+//                    if (Common.isDef(this.tooltip)) {
+//                        this.tooltip.dispose();
+//                        this.tooltip = undefined;
+//                    }
+                }
             };
             Common.logInfo('onAttached of ResponsiveColLayout');
             var element = document.getElementById(this.id + (this.hasBorderBox ? '_b' : '_p'));
+            element.addEventListener('mouseover', onMouseOver);
             var self = this;
             K.addWindowResizeListener(function () {
                 console.log('render chart ' + self.id + ' onResize ' + element.clientWidth + '/' + element.clientHeight);
