@@ -136,6 +136,12 @@ require(["common", "keziajs", "keziajs-charts"], function (common, K, KC) {
             borderRadius:5,
             position: KC.LegendPosition.TOP
         },
+        tooltip:{
+            posX:20,
+            posY:30,
+            width:200,
+            height:100
+        },
         columWidthPc:0.5,
         backgroundStyleProperty: '#f8f8f8',
         borderRadiusStyleProperty: '20px',

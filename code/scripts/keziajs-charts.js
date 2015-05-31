@@ -105,7 +105,7 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
             var onComplete = function () {
                 self.el.innerHTML = '<div style="padding:10px">' + innerHtml + '</div>';
                 self.fromX = toX;
-            self.fromY=toY;
+                self.fromY = toY;
             }
             Common.animateAll(durationInMs, onComplete, [this]);
         }
@@ -661,7 +661,14 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
                 borderRadius: 0,
                 position: m.LegendPosition.TOP
             });
-
+            this.tooltip = Common.valueOrDefault(this.tooltip, {
+                //posX
+                //posY
+               
+            });
+            this.tooltip.width=Common.valueOrDefault(this.tooltip.width,100);
+            this.tooltip.height=Common.valueOrDefault(this.tooltip.height,80);
+            
             this.padding = Common.valueOrDefault(this.padding, 5);
             this.spacing = Common.valueOrDefault(this.spacing, 5);
             this.yAxisLeftWidth = Common.valueOrDefault(this.yAxisLeftWidth, 50);
@@ -834,6 +841,7 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
         };
         this.onAttached = function () {
             var self = this;
+            var element = document.getElementById(this.id + (this.hasBorderBox ? '_b' : '_p'));
             var onMouseOver = function (e) {
                 console.info('mouse over ' + e.currentTarget.id + ' ' + e.target.id);
                 var rectId = e.target.id;
@@ -850,13 +858,18 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
                     var data = self.rects[mouseOverCol].data;
                     var innerHtml = '<div style="padding:10px"><div>Serie:' + data.serie + '</div><div>value:' + data.value + '</div></div>';
                     var rectBoundingClient = e.target.getBoundingClientRect();
-                    var y = (rectBoundingClient.top - 60);
-                    var x = rectBoundingClient.left;
+                    var x, y;
+                    if (Common.isDef(self.tooltip.posY)) {
+                        y = element.getBoundingClientRect().top + self.tooltip.posY;
+                        x = element.getBoundingClientRect().left + self.tooltip.posX;
+                    } else {
+                        y = rectBoundingClient.top - 60;
+                        x = rectBoundingClient.left;
+
+                    }
 
                     if (Common.isDef(this.tooltip)) {
-//                        this.tooltip.dispose();
-//                        this.tooltip = undefined;
-                        this.tooltip.moveTo(x, y, 100, 120, 70, innerHtml);
+                        this.tooltip.moveTo(x, y, 100, self.tooltip.width, self.tooltip.height, innerHtml);
 //                        var onComplete = function () {
 //                                this.tooltip.setContent(120, 70, innerHtml);
 //                        }
@@ -865,24 +878,27 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
                         console.log('Tooltip on rectId ' + rectId + ' created');
 
                         this.tooltip = new pr.Tooltip();
-                        this.tooltip.show(x, y, 120, 70, innerHtml);
+                        this.tooltip.show(x, y, self.tooltip.width, self.tooltip.height, innerHtml);
                     }
-                    // this.tooltip.show(x, y, 120, 70, innerHtml);
                 } else {
-//                    if (Common.isDef(this.tooltip)) {
-//                        this.tooltip.dispose();
-//                        this.tooltip = undefined;
-//                    }
                 }
             };
+            var onMouseOut = function (e) {
+                console.log('onMouseOut');
+                if (Common.isDef(this.tooltip)) {
+                    console.log('dispose tooltip');
+                    this.tooltip.dispose();
+                    this.tooltip = undefined;
+                }
+            }
             Common.logInfo('onAttached of ResponsiveColLayout');
-            var element = document.getElementById(this.id + (this.hasBorderBox ? '_b' : '_p'));
+
+            element.addEventListener('mouseleave', onMouseOut);
             element.addEventListener('mouseover', onMouseOver);
             var self = this;
             K.addWindowResizeListener(function () {
                 console.log('render chart ' + self.id + ' onResize ' + element.clientWidth + '/' + element.clientHeight);
                 element.innerHTML = self.renderChart(element.clientWidth, element.clientHeight);
-                //self.animate(self);
                 Common.animateAll(1000, animationCompleted, self.rects);
             });
             element.innerHTML = self.renderChart(element.clientWidth, element.clientHeight);
