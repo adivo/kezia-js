@@ -664,11 +664,14 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
             this.tooltip = Common.valueOrDefault(this.tooltip, {
                 //posX
                 //posY
-               
+
             });
-            this.tooltip.width=Common.valueOrDefault(this.tooltip.width,100);
-            this.tooltip.height=Common.valueOrDefault(this.tooltip.height,80);
-            
+            this.tooltip.width = Common.valueOrDefault(this.tooltip.width, 100);
+            this.tooltip.height = Common.valueOrDefault(this.tooltip.height, 80);
+            this.tooltip.render = Common.valueOrDefault(this.tooltip.render,
+                    function (data) {
+                        return  '<div style="padding:10px"><div>Serie:' + data.serie + '</div><div>value:' + data.value + '</div></div>';
+                    });
             this.padding = Common.valueOrDefault(this.padding, 5);
             this.spacing = Common.valueOrDefault(this.spacing, 5);
             this.yAxisLeftWidth = Common.valueOrDefault(this.yAxisLeftWidth, 50);
@@ -856,7 +859,9 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
                     e.target.style['stroke-width'] = 2;
                     this.selectedColumnElement = e.target;
                     var data = self.rects[mouseOverCol].data;
-                    var innerHtml = '<div style="padding:10px"><div>Serie:' + data.serie + '</div><div>value:' + data.value + '</div></div>';
+
+                    var innerHtml = self.tooltip.render(data);
+//                    var innerHtml = '<div style="padding:10px"><div>Serie:' + data.serie + '</div><div>value:' + data.value + '</div></div>';
                     var rectBoundingClient = e.target.getBoundingClientRect();
                     var x, y;
                     if (Common.isDef(self.tooltip.posY)) {

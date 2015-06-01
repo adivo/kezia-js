@@ -118,7 +118,7 @@ require(["common", "keziajs", "keziajs-charts"], function (common, K, KC) {
             bgColor: '#f0f0f0',
             borderColor: '000000',
             color: '#f0f0f0',
-            borderRadius:5,
+            borderRadius: 5,
             position: KC.LegendPosition.LEFT
         },
         title: 'Historic World Population by Region #2',
@@ -133,16 +133,42 @@ require(["common", "keziajs", "keziajs-charts"], function (common, K, KC) {
             bgColor: '#808080',
             borderColor: '000000',
             color: 'white',
-            borderRadius:5,
+            borderRadius: 5,
             position: KC.LegendPosition.TOP
         },
-        tooltip:{
-            posX:20,
-            posY:30,
-            width:200,
-            height:100
+        tooltip: {
+            posX: 0,
+            posY: 405,
+            width: 320,
+            height: 250,
+            render: function (data) {
+                 var img;
+                switch(data.serie){
+                    case 'Asia':
+                        img='img/Asia.jpg';
+                        break;
+                    case 'America':
+                        img='img/America.jpg';
+                        break;
+                    case 'Europe':
+                        img='img/Europe.gif';
+                        break;
+                    case 'Africa':
+                        img='img/Africa.jpg';
+                        break;
+                    default:
+                        img='img/Oceania.gif';
+                }
+//                var img = 'img/' + data.serie + '.jpg';
+
+                return  '<div style="padding:3px">'
+                        + '<div>Serie:' + data.serie + '</div>'
+                        + '<div>value:' + data.value + '</div>'
+                        + '<div><img src="'+img+'"/></div>'
+                        + '</div>';
+            }
         },
-        columWidthPc:0.5,
+        columWidthPc: 0.5,
         backgroundStyleProperty: '#f8f8f8',
         borderRadiusStyleProperty: '20px',
         //legendBgColor: 'white',
@@ -159,11 +185,11 @@ require(["common", "keziajs", "keziajs-charts"], function (common, K, KC) {
             bgColor: '#085606',
             borderColor: '000000',
             color: 'white',
-            borderRadius:5,
+            borderRadius: 5,
             position: KC.LegendPosition.BOTTOM
         },
-        columWidthPc:0.95,
-        areaBgImage:'img/worldmap_green.jpg',
+        columWidthPc: 0.95,
+        areaBgImage: 'img/worldmap_green.jpg',
         backgroundStyleProperty: '#f8f8f8',
         borderRadiusStyleProperty: '10px',
         chartBgColor: 'white',
@@ -175,8 +201,9 @@ require(["common", "keziajs", "keziajs-charts"], function (common, K, KC) {
         facts: ['Population'],
         model: model
     });
-    var onComplete=function(){};
-   
+    var onComplete = function () {
+    };
+
     var responsiveColLayout = new K.ResponsiveColLayout();
     responsiveColLayout.addComponent(colChart, 400, K.WidgetPosition.fill);
     responsiveColLayout.addComponent(colChart2, 400, K.WidgetPosition.fill);
@@ -184,12 +211,12 @@ require(["common", "keziajs", "keziajs-charts"], function (common, K, KC) {
     responsiveColLayout.addComponent(colChart4, 400, K.WidgetPosition.fill);
 
     rowLayout.addComponent(responsiveColLayout, 400, K.WidgetPosition.fill);
-    
+
     var row2 = new K.ResponsiveColLayout();
     row2.addComponent(new K.Button("Send"), 400, K.WidgetPosition.middleCenter);
-    row2.addComponent(new KC.Tester(),400,K.WidgetPosition.fill);
+    row2.addComponent(new KC.Tester(), 400, K.WidgetPosition.fill);
     rowLayout.addComponent(row2, 50, K.WidgetPosition.fill);
-    
+
     rowLayout.enableAutoSizeLane();
 //    rowLayout.addComponent(new K.Chart(), 200, K.WidgetPosition.fill);
     K.renderComponents('app', rowLayout);
