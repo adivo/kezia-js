@@ -15,7 +15,7 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
     pr.modalOverlayId = '';
     /* Used to store the id of the dialog attached on top of the overlay */
     pr.modalDialogId = '';
-pr.windowResizeListener=[];
+    pr.windowResizeListener = [];
     /** 
      * Called as soon as the rendered components have been injected into an element. 
      * The method onAttached() of the registered components will be called.
@@ -88,13 +88,14 @@ pr.windowResizeListener=[];
         var element = document.getElementById(elementId);
         if (Common.isDef(element)) {
             element.innerHTML = component.render('top:0;left:0;bottom:0;right:0');
+//             element.innerHTML = component.render('top:0;left:0;bottom:0;right:0');
             pr.attachRegisteredComponents();
         }
-        
+
         window.onresize = function () {
-            for (var i=0;i< pr.windowResizeListener.length;i++){
-                var listener=pr.windowResizeListener[i];
-                if (Common.isDef(listener)){
+            for (var i = 0; i < pr.windowResizeListener.length; i++) {
+                var listener = pr.windowResizeListener[i];
+                if (Common.isDef(listener)) {
                     listener();
                 }
             }
@@ -107,8 +108,8 @@ pr.windowResizeListener=[];
             pr.attachRegisteredComponents();
         }
     };
-    m.addWindowResizeListener=function(windowResizeListener){
-        pr.windowResizeListener[pr.windowResizeListener.length]=windowResizeListener;
+    m.addWindowResizeListener = function (windowResizeListener) {
+        pr.windowResizeListener[pr.windowResizeListener.length] = windowResizeListener;
     }
 
     m.showLoader = function () {
@@ -230,7 +231,7 @@ pr.windowResizeListener=[];
                     this[properties[j]] = styleObj[properties[j]];
                 }
                 console.log('\n\nProperties for ' + cssClass);
-               // var thisProps = Object.getOwnPropertyNames(this);
+                // var thisProps = Object.getOwnPropertyNames(this);
                 //for (j = 0; j < thisProps.length; j++) {
                 //   console.log('this "' + thisProps[j] + '"');
                 //}
@@ -384,7 +385,7 @@ pr.windowResizeListener=[];
             this.text = text;
             this.overflowVisible = true;
             //this.horizontalAlign=Common.HorizontalPosition.LEFT;
-            
+
         },
         setValue: function (text) {
             this.text = text;
@@ -914,22 +915,39 @@ pr.windowResizeListener=[];
         },
         onAttached: function () {
             Common.logInfo("OnAttached of component id=" + this.id + Common.valueOnCheck(this.name, ' name=' + this.name, ''));
-            var el = document.getElementById(this.id + '_p');
+//            var el = document.getElementById(this.id + '_p');
             if (Common.isDef(el)) {
                 Common.logDebug("OnAttached of component id=" + this.id + Common.valueOnCheck(this.name, ' name=' + this.name, ''));
                 Common.logDebug("OnAttached of component id=" + this.id + Common.valueOnCheck(this.name, ' name=' + this.name, '') +
                         ' on attached width=' + el.clientWidth + ' height=' + el.offsetHeight);
             }
-            var el = document.getElementById(this.id + '_b');
+//            var el = document.getElementById(this.id + '_b');
             if (Common.isDef(el)) {
                 Common.logDebug("OnAttached of component id=" + this.id + Common.valueOnCheck(this.name, ' name=' + this.name, ''));
                 Common.logDebug("OnAttached of component id=" + this.id + Common.valueOnCheck(this.name, ' name=' + this.name, '') +
                         ' on attached width=' + el.clientWidth + ' height=' + el.offsetHeight);
             }
+            var el = document.getElementById(this.id + (this.hasBorderBox ? '_b' : '_p'));
             var width = Common.valueOrDefault(el.clientWidth, this.width);
             var height = Common.valueOrDefault(el.clientHeight, this.height);
             var html = this.renderInnerOnAttached(width, height);
-            el.innerHTML = html;
+            //el.innerHTML = new Tags.Div(html).render();
+            el.innerHTML =
+                    new Tags.Div(html)
+                    .addClass(Common.css.FILL)
+                    .addStyle('width', '100%')
+                    .addStyle('height', '100%')
+                    .addStyle('overflow-y', 'auto')
+                    .render();
+
+//             el.innerHTML = new Tags.Div(
+//                    new Tags.Div(html)
+//                    .addClass(Common.css.FILL)
+//                    .addStyle('width', '100%')
+//                    .addStyle('height', '100%')
+//                    .render())
+//                    .addStyle('overflow-y', 'scroll')
+//                    .render();
             /*
              Common.logDebug('onAttached on ' + this.cssClass + ' and all its components');
              for (var i = 0; i < this.components.length; i++) {
@@ -955,6 +973,7 @@ pr.windowResizeListener=[];
             return 'rendering on attached';
         },
         renderInnerOnAttached: function (width, height) {
+            var fixedOverlay = '';
             var html = '';
             var slotPos = this.padding;
             var i = 0;
@@ -1007,15 +1026,25 @@ pr.windowResizeListener=[];
                 if (Common.isUndef(component)) {
                     alert.info('component is undefined');
                 }
-                var slotDiv = new Tags.Div(component.render(posStyle));
+                //render component
+                var slotDiv;
+                var isLastLane = (i === this.components.length - 1);
+                slotDiv = new Tags.Div(component.render(posStyle));
+
                 if (!Common.isUndef(layoutData.slotBgStyle)) {
                     slotDiv.addStyle('background', layoutData.slotBgStyle);
                 }
-                var isLastLane = (i === this.components.length - 1);
                 this.addSlotClassAndStyles(slotDiv, slotPos, layoutData.slotSize, isLastLane, i);
-                html += slotDiv.render();
+                var renderedDiv=slotDiv.render();
+                if (Common.isDef(component.position) & component.position === 'fixed') {
+                    fixedOverlay += renderedDiv;
+                } 
+                 html += renderedDiv;
                 slotPos += layoutData.slotSize;
             }
+            var overlay=document.createElement('div');
+            overlay.innerHTML=fixedOverlay;
+            document.body.appendChild(overlay);
             return html;
         },
         getWidth: function (component) {
@@ -1068,7 +1097,19 @@ pr.windowResizeListener=[];
             }
         }
     });
+    /**
+     * Creates a responsive column layout with the minWidthPerCol.
+     * @param {type} minWidthPerCol
+     * @param {type} styleObj
+     * @returns {undefined}
+     */
     m.ResponsiveColLayout = m.BaseLayout.extend({
+        /**
+         * Creates a responsive column layout with the minWidthPerCol.
+         * @param {type} minWidthPerCol
+         * @param {type} styleObj
+         * @returns {undefined}
+         */
         init: function (minWidthPerCol, styleObj) {
             this._super('ResponsiveColLayout', styleObj);
             this.minWidthPerCol = minWidthPerCol;
@@ -1201,7 +1242,17 @@ pr.windowResizeListener=[];
         }
 
     });
-    m.MenuBar = m.BaseLayout.extend({});
+    m.MenuBar = m.BaseLayout.extend({
+        /**
+         * Creates a responsive column layout with the minWidthPerCol.
+         * @param {type} minWidthPerCol
+         * @param {type} styleObj
+         * @returns {undefined}
+         */
+        init: function (properties) {
+            this._super('MenuBar', properties);
+        },
+    });
     m.Menu = m.BaseLayout.extend({
     });
     m.MenuItem = m.Component.extend({

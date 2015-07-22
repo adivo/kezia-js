@@ -127,12 +127,16 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
             }
         };
         var animateMove = function (self, progress) {
-
-            var currX = (self.toX - self.fromX) * progress + self.fromX;
-            var currY = (self.toY - self.fromY) * progress + self.fromY;
-            self.el.style.left = currX + 'px';
-            self.el.style.top = currY + 'px';
-            console.log(' progress=' + progress + ' left=' + self.el.style.left + ' top=' + self.el.style.top);
+            if (Common.isDef(self)) {
+                var currX = (self.toX - self.fromX) * progress + self.fromX;
+                var currY = (self.toY - self.fromY) * progress + self.fromY;
+                if (Common.isDef(self.el)){
+                self.el.style.left = currX + 'px';
+                self.el.style.top = currY + 'px';
+                
+                console.log(' progress=' + progress + ' left=' + self.el.style.left + ' top=' + self.el.style.top);
+            }
+            }
         };
         return {show: show, dispose: dispose, moveTo: moveTo, animate: animate};
     }
@@ -666,7 +670,7 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
                 //posY
 
             });
-            this.tooltip.width = Common.valueOrDefault(this.tooltip.width, 100);
+            this.tooltip.width = Common.valueOrDefault(this.tooltip.width, 140);
             this.tooltip.height = Common.valueOrDefault(this.tooltip.height, 80);
             this.tooltip.render = Common.valueOrDefault(this.tooltip.render,
                     function (data) {
@@ -868,11 +872,17 @@ define(["class_require-mod", "common", "tags", "keziajs"], function (OO, Common,
                         y = element.getBoundingClientRect().top + self.tooltip.posY;
                         x = element.getBoundingClientRect().left + self.tooltip.posX;
                     } else {
-                        y = rectBoundingClient.top - 60;
+                        y = rectBoundingClient.top - self.tooltip.height - 20;
                         x = rectBoundingClient.left;
 
                     }
+                    //correct if the tooltip is outside of the window
+                    if ((x + self.tooltip.width) > window.innerWidth) {
+                        console.info('x=' + x + ' needs to be corrected as window.innerWidth=' + window.innerWidth);
+                        x = x - (x + self.tooltip.width - window.innerWidth);
+                        console.info('x corrected to ' + x);
 
+                    }
                     if (Common.isDef(this.tooltip)) {
                         this.tooltip.moveTo(x, y, 100, self.tooltip.width, self.tooltip.height, innerHtml);
 //                        var onComplete = function () {

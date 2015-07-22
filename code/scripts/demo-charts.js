@@ -5,10 +5,8 @@
  */
 /*eslint-env node */
 require(["common", "keziajs", "keziajs-charts"], function (common, K, KC) {
-    var rowLayout = new K.RowLayout();
-    rowLayout.setBorderStyleClass('c-paddingBorder');
 
-    var colChart = new KC.SuperChart({
+    var colChart1 = new KC.SuperChart({
         borderStyleProperty: '1px solid #a0a0a0',
         xAxis: {
             categories: ['Apples', 'Oranges', 'Pears', 'Grapes', 'Bananas']
@@ -32,25 +30,14 @@ require(["common", "keziajs", "keziajs-charts"], function (common, K, KC) {
                 stacking: 'normal'
             }
         },
-        series: [{
-                name: 'John',
-                data: [5, 3, 4, 7, 2],
-                stack: 'male'
-            }, {
-                name: 'Joe',
-                data: [3, 4, 4, 2, 5],
-                stack: 'male'
-            }, {
-                name: 'Jane',
-                data: [2, 5, 6, 2, 1],
-                stack: 'female'
-            }, {
-                name: 'Janet',
-                data: [3, 0, 4, 4, 3],
-                stack: 'female'
-            }],
+        series: [
+            {name: 'John', data: [5, 3, 4, 7, 2], stack: 'male'},
+            {name: 'Joe', data: [3, 4, 4, 2, 5], stack: 'male'},
+            {name: 'Jane', data: [2, 5, 6, 2, 1], stack: 'female'},
+            {name: 'Janet', data: [3, 0, 4, 4, 3], stack: 'female'}
+        ],
         chartBgColor: '#fafafa',
-        title: 'Historic World Population by Region',
+        title: 'Chart 1: Historic World Population by Region',
         subTitle: 'Source: Wikipedia.org',
         legendPosition: KC.LegendPosition.LEFT,
         dimensions: ['Year', 'Continent'],
@@ -121,7 +108,7 @@ require(["common", "keziajs", "keziajs-charts"], function (common, K, KC) {
             borderRadius: 5,
             position: KC.LegendPosition.LEFT
         },
-        title: 'Historic World Population by Region #2',
+        title: 'Chart 2: Historic World Population by Region #2',
         subTitle: 'Source: Wikipedia.org',
         dimensions: ['Year', 'Continent'],
         facts: ['Population'],
@@ -142,29 +129,28 @@ require(["common", "keziajs", "keziajs-charts"], function (common, K, KC) {
             width: 320,
             height: 250,
             render: function (data) {
-                 var img;
-                switch(data.serie){
+                var img;
+                switch (data.serie) {
                     case 'Asia':
-                        img='img/Asia.jpg';
+                        img = 'img/Asia.jpg';
                         break;
                     case 'America':
-                        img='img/America.jpg';
+                        img = 'img/America.jpg';
                         break;
                     case 'Europe':
-                        img='img/Europe.gif';
+                        img = 'img/Europe.gif';
                         break;
                     case 'Africa':
-                        img='img/Africa.jpg';
+                        img = 'img/Africa.jpg';
                         break;
                     default:
-                        img='img/Oceania.gif';
+                        img = 'img/Oceania.gif';
                 }
-//                var img = 'img/' + data.serie + '.jpg';
 
                 return  '<div style="padding:3px">'
                         + '<div>Serie:' + data.serie + '</div>'
                         + '<div>value:' + data.value + '</div>'
-                        + '<div><img src="'+img+'"/></div>'
+                        + '<div><img src="' + img + '"/></div>'
                         + '</div>';
             }
         },
@@ -193,7 +179,7 @@ require(["common", "keziajs", "keziajs-charts"], function (common, K, KC) {
         backgroundStyleProperty: '#f8f8f8',
         borderRadiusStyleProperty: '10px',
         chartBgColor: 'white',
-        title: 'Historic World Population by Region #3',
+        title: 'Chart 3: Historic World Population by Region #3',
         legendPosition: KC.LegendPosition.BOTTOM,
         legendBorderColor: '#a0a0a0',
         subTitle: 'Source: Wikipedia.org',
@@ -204,20 +190,36 @@ require(["common", "keziajs", "keziajs-charts"], function (common, K, KC) {
     var onComplete = function () {
     };
 
-    var responsiveColLayout = new K.ResponsiveColLayout();
-    responsiveColLayout.addComponent(colChart, 400, K.WidgetPosition.fill);
-    responsiveColLayout.addComponent(colChart2, 400, K.WidgetPosition.fill);
-    responsiveColLayout.addComponent(colChart3, 400, K.WidgetPosition.fill);
-    responsiveColLayout.addComponent(colChart4, 400, K.WidgetPosition.fill);
+    //var responsiveColLayout = new K.ResponsiveColLayout(200);
+    var rowLayout = new K.RowLayout();
+    var menuBar=new K.MenuBar({
+        backgroundStyleProperty:"black",
+        opacity:'0.5',
+        position:'fixed'
+    });
+//    menuBar.addComponent(new K.Label('Test'),100,K.WidgetPosition.fill);
+    rowLayout.addComponent(menuBar,50,K.WidgetPosition.fill);
+    rowLayout.addComponent(colChart1, 400, K.WidgetPosition.fill);
+    rowLayout.addComponent(colChart2, 500, K.WidgetPosition.fill);
+//    responsiveColLayout.addComponent(colChart3, 400, K.WidgetPosition.fill);
+//    responsiveColLayout.addComponent(colChart4, 400, K.WidgetPosition.fill);
 
-    rowLayout.addComponent(responsiveColLayout, 400, K.WidgetPosition.fill);
+    //rowLayout.addComponent(responsiveColLayout, 300, K.WidgetPosition.fill);
+    colChart1.setBorderStyleClass('c-paddingBorder');
+    colChart2.setBorderStyleClass('c-paddingBorder');
+    rowLayout.addComponent(colChart3, 500, K.WidgetPosition.fill);
+    rowLayout.addComponent(colChart4, 300, K.WidgetPosition.fill);
+//    rowLayout.addComponent(new K.Button("Send"), 400, K.WidgetPosition.middleCenter);
+//    rowLayout.addComponent(new KC.Tester(), 400, K.WidgetPosition.fill);
+    //rowLayout.addComponent(row2, 50, K.WidgetPosition.fill);
+
+    //rowLayout.enableAutoSizeLane();
+
+    //responsiveColLayout.addComponent(rowLayout,400,K.WidgetPosition.fill);
 
     var row2 = new K.ResponsiveColLayout();
-    row2.addComponent(new K.Button("Send"), 400, K.WidgetPosition.middleCenter);
-    row2.addComponent(new KC.Tester(), 400, K.WidgetPosition.fill);
-    rowLayout.addComponent(row2, 50, K.WidgetPosition.fill);
 
-    rowLayout.enableAutoSizeLane();
 //    rowLayout.addComponent(new K.Chart(), 200, K.WidgetPosition.fill);
+//    K.renderComponents('app', responsiveColLayout);
     K.renderComponents('app', rowLayout);
 });
