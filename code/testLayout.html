@@ -12,13 +12,24 @@ and open the template in the editor.
     </head>
     <body>
         <div style="position:absolute;height:1300px;background:yellow;top:0;bottom:0;right:0;left:0">
-            <div style="background:blue;position: relative;  width: 33.3%;height:200px;">Test</div>
+
+            <div style="background:blue;position: relative;  width: 33.3%;height:200px;float:left">Relative positionned with 33.3% width, height:200px</div>
+            <div style="position:relative;top:-200px;float:left">
+                <div style="background:#f0f0f0;border:1px solid red;position:relative;left:33.3%;right:0;top:0;">
+                    <div style="background:#1dc116;position:relative;left:0;right:0;padding:20px">Relative positionned Element <br>within absolute positionned container<br>with height according to content<br> height</div>
+                    <div style="background:#36d7ff;position:relative;left:0;right:0;padding:20px">Element within absolute positionned container<br>with height according to content</div>
+                </div>
+                <div style="background:#f0f0f0;border:1px solid red;position:relative;left:33.3%;right:0;top:0;">
+                    <div style="background:#1dc116;position:relative;left:0;right:0;padding:20px">Relative positionned Element <br>within absolute positionned container<br>with height according to content<br> height</div>
+                    <div style="background:#36d7ff;position:relative;left:0;right:0;padding:20px">Element within absolute positionned container<br>with height according to content</div>
+                </div>
+            </div>
             <div style="background:#f0f0f0;position: relative;  width: 33.33%;">
                 <div style="position:relative;left:0;right:0;height:600px">
                     <div style="position:absolute;left:100px;right:0;top:0;bottom:0">
                         <div style="border:1px red solid">Element 2</div>
                     </div>
-                     <div style="position:absolute;background:#505050;left:200px;right:100px;top:100px;bottom:0">
+                    <div style="position:absolute;background:#505050;left:200px;right:100px;top:100px;bottom:0">
                         <div style="border:1px red solid">Element 3</div>
                     </div>
                 </div>

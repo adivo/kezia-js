@@ -14,49 +14,59 @@ and open the template in the editor.
 .sampleBorderStyleClass{border:4px solid blue;border-bottom-left-radius: 10px;background:#606060}
 
 
+* {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+
 body {
     -webkit-font-smoothing: subpixel-antialiased;
     -webkit-font-smoothing: antialiased;
     /*font: normal 13px/1.231 Roboto, arial, sans-serif;*/
     /*font-family:'Open Sans', sans-serif;*/
     font-size:14px;
-    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
+    /*font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;*/
+    color: rgb(51, 51, 51);
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+
 }
 /* Scrollbars see http://mikethedj4.github.io/Webkit-Scrollbar-Generator/*/
 /* Works in chrome only */
-::-webkit-scrollbar {
-  width: 12px;
-  height: 12px;
+/*::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
 }
 ::-webkit-scrollbar-button {
-  width: 0px;
-  height: 0px;
+    width: 0px;
+    height: 0px;
 }
 ::-webkit-scrollbar-thumb {
-  background: #e1e1e1;
-  border: 0px none #ffffff;
-  border-radius: 50px;
+    background: #e1e1e1;
+    border: 0px none #ffffff;
+    border-radius: 50px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #ffffff;
+    background: #ffffff;
 }
 ::-webkit-scrollbar-thumb:active {
-  background: #000000;
+    background: #000000;
 }
 ::-webkit-scrollbar-track {
-  background: #666666;
-  border: 0px none #ffffff;
-  border-radius: 92px;
+    background: #666666;
+    border: 0px none #ffffff;
+    border-radius: 92px;
 }
 ::-webkit-scrollbar-track:hover {
-  background: #666666;
+    background: #666666;
 }
 ::-webkit-scrollbar-track:active {
-  background: #333333;
+    background: #333333;
 }
 ::-webkit-scrollbar-corner {
-  background: transparent;
-}
+    background: transparent;
+}*/
 
 
 /* --------------------------------------------------------------------------------------------------------------------------- */
@@ -76,7 +86,10 @@ input[type="search"]::-webkit-search-results-decoration { display: none; }
 /* --------------------------------------------------------------------------------------------------------------------------- */
 /* Framework 
 /* ----------------------------------------------------------------------------------------------------------------------------*/
-
+h1{
+    font-size: 36px;
+    font-weight: 500;
+}
 .Slot{
     position: absolute;
     overflow: hidden
@@ -85,7 +98,86 @@ input[type="search"]::-webkit-search-results-decoration { display: none; }
     position: absolute;
     overflow: visible;
 }
+/* --------------------------------------------------------------------------------------------------------------------------- */
+/* Layouts 
+/* ----------------------------------------------------------------------------------------------------------------------------*/
+.K-Row{
+    position:relative;
+    display:table;
+    width:100%;
+    box-sizing: border-box;
+    left:0;right:0;
 
+}
+.K-Row:before{
+    /*display:table;*/
+    /*content:" "*/
+}
+.K-Row:after{
+    clear:both;
+}
+.K-Col_Wrap_768Px,.K-Col_Wrap_1024Px,.K-Col{
+    position:relative;
+    display:inline-block;
+    box-sizing:border-box;
+    float:left;
+
+    overflow:hidden;
+    min-height:1px;
+    line-height: 1.42857143;
+}
+/* a class for an additional row height filling div. Hidden when wrapped on smaller devices */
+.K-Col_Wrap_1024Px_Border,.K-Col_Wrap_768Px_Border{
+    position:absolute;top:0;bottom:0;
+    -webkit-box-shadow: 5px 3px 3px 1px rgba(0,0,0,0.75);-moz-box-shadow: 5px 3px 3px 1px rgba(0,0,0,0.75);box-shadow: 5px 3px 3px 1px rgba(0,0,0,0.75);
+
+}
+.K-Row:last-child{
+    float:none
+}
+.K-Col:last-of-type,.K-Col_Wrap_768Px:last-of-type,.K-Col_Wrap_1024Px:last-of-type{
+    float:none;
+}
+@media (max-width:1024px){
+    .K-Col_Wrap_1024Px{
+        width:100% !important
+    }
+    .K-Col_Wrap_1024Px_Border{
+        visibility:hidden;
+    }
+}
+@media (max-width:768px){
+    .K-Col_Wrap_768Px{
+        width:100% !important
+    }
+    .K-Col_Wrap_768Px_Border{
+        visibility:hidden;
+    }
+}
+/* --------------------------------------------------------------------------------------------------------------------------- */
+/* Borders 
+/* ----------------------------------------------------------------------------------------------------------------------------*/
+.K-Border_Thin{
+    border:1px solid #d0d0d0;
+}
+.K-MarginLR_10px{
+    margin:0 10px 0 10px;
+}
+.K-MarginLR_20px{
+    margin:0 20px 0 20px;
+}
+.K-BG_Light{
+    background:#f5f5f5;
+}
+.K-HorTextAlign_Center{
+    text-align: center;
+}
+.K-HorTextAlign_Left{
+    text-align: left;
+}
+.K-HorTextAlign_Right{
+    text-align: right;
+}
 .Loader {
     position:absolute;
     left:0;
@@ -174,6 +266,7 @@ input[type="search"]::-webkit-search-results-decoration { display: none; }
 }
 .Label{
     /* padding:5px; */
+    white-space: pre-line;
 }
 /* --------------------------------------------------------------------------------------------------------------------------- */
 /* Button 

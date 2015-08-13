@@ -1,0 +1,9 @@
+{
+    "demoGrid": {
+        "title": "Grid \"demo\" with Kezia.js",
+        "description":"This example demonstrates the usage of the <b>Grid</b> component"
+    },
+    "demoGridTitle": {
+        "title": "Grid \"demo with Kezia.js"
+    }
+}

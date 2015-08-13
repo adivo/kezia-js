@@ -931,6 +931,94 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
             return items;
         };
     });
+    m.Rows = m.Component.extend({
+        init: function (options) {
+            this._super('', options);
+            this.components = [];
+            this.componentsLayoutData = [];
+
+        },
+        onAttached: function () {
+
+        },
+        addComponent: function (component, slotSizePc, widgetPosition, slotBgStyle) {
+            this.components[this.components.length] = component;
+            if (Common.isUndef(widgetPosition) || (widgetPosition.length < 2)) {
+                widgetPosition = Common.WidgetPosition.fill;
+            }
+            this.componentsLayoutData[this.componentsLayoutData.length] = new m.LaneLayoutData(slotSizePc, widgetPosition, slotBgStyle);
+        },
+        renderInner: function () {
+            m.registerComponentForAttaching(this);
+            Common.logDebug("renderInner of component id=" + this.id + Common.valueOnCheck(this.name, ' name=' + this.name, ''));
+            
+            var html = '';
+            var slotPos = this.padding;
+            var i = 0;
+            for (i = 0; i < this.components.length; i++) {
+                var layoutData = this.componentsLayoutData[i];
+                var component = this.components[i];
+                var wPos = layoutData.widgetPosition;
+                if (!Common.isArray(wPos)) {
+                    wPos = Common.WidgetPosition.fill;
+                }
+                var hor = wPos[1];
+                var vert = wPos[0];
+                var posStyle = '';
+                var w = this.getWidth(component);
+                switch (hor) {
+//                case 'topFillButMax':
+//                    posStyle +='left:0;width:100%;max-width:300px';
+//                    break;
+                    case 'left':
+                        posStyle += 'left:' + this.padding + 'px;width:' + w + '%';
+                        break;
+                    case 'center':
+                        posStyle += 'margin-left:'+(-w/2)+'px;left:50%;width:' + w + 'px';
+                        break;
+                    case 'right':
+                        posStyle += 'margin-left:100%;left:'+(-w)+'px;width:' + w + 'px';
+                        break;
+                    default:
+                        posStyle += 'width:'+w+'px';
+                }
+                posStyle += ';';
+                var h = this.getHeight(component);
+                switch (vert) {
+                    case 'top':
+                        posStyle += 'top:' + this.padding + 'px;height:' + h + 'px';
+                        break;
+                    case 'middle':
+                        posStyle += 'margin-top:-' + (h / 2 + this.padding) + 'px;top:50%;height:' + h + 'px';
+                        break;
+                    case 'bottom':
+                        posStyle += 'bottom:' + this.padding + 'px;height:' + h + 'px';
+                        break;
+                    default:
+                        posStyle += 'top:' + this.padding + 'px;bottom:' + this.padding + 'px';
+                }
+
+                if (Common.isUndef(layoutData.slotSize)) {
+                    layoutData.slotSize = Common.Defaults.slotWidth;
+                }
+                if (Common.isUndef(component)) {
+                    alert.info('component is undefined');
+                }
+                //render component
+                var slotDiv;
+                slotDiv = new Tags.Div(component.render(posStyle));
+
+                if (!Common.isUndef(layoutData.slotBgStyle)) {
+                    slotDiv.addStyle('background', layoutData.slotBgStyle);
+                }
+                this.addSlotClassAndStyles(slotDiv, slotPos, layoutData.slotSize, isLastLane, i);
+                var renderedDiv = slotDiv.render();
+                html+=renderedDiv;
+            }
+            
+            return html;
+        },
+    });
     m.BaseLayout = m.Component.extend({
         init: function (cssClass, styleObj) {
             this._super(cssClass, styleObj);
@@ -1090,7 +1178,7 @@ define(["class_require-mod", "common", "tags"], function (OO, Common, Tags) {
             if (Common.isDef(cssClass) && Common.isDef(styleObj)) {
                 this._super(cssClass, styleObj);
             } else if (Common.isDef(cssClass)) {
-                styleObj=cssClass;
+                styleObj = cssClass;
                 this._super(undefined, styleObj);
             } else {
                 this._super('RowLayout', styleObj);

@@ -211,6 +211,16 @@ define(["class_require-mod"], function (OO, Common, Tags, K) {
 //            this.asyncLoad(file, callback, 'text/text');
             this.asyncLoad(file, callback, 'text');
         },
+        /**
+         * Loads a json file asynchronously. The callback is called as soon the file is loaded.
+         * Example usage:<br>
+         * Common.asyncLoadJsonFile(restUrl, function (xmlhttp) {
+                var jsonObj = JSON.parse(xmlhttp.responseText);
+            });
+         * @param {type} file
+         * @param {type} callback
+         * @returns {undefined}
+         */
         asyncLoadJsonFile: function (file, callback) {
 //            this.asyncLoad(file, callback, 'text/json');
             this.asyncLoad(file, callback, 'text');
@@ -311,6 +321,10 @@ define(["class_require-mod"], function (OO, Common, Tags, K) {
             }
             return undefVal;
         },
+        
+        add:function(array,elementToAdd){
+            array[array.length]=elementToAdd;
+        }
     };
     return common;
 });

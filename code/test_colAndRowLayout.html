@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>TODO supply a title</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            * {
+                -webkit-box-sizing: border-box;
+                -moz-box-sizing: border-box;
+                box-sizing: border-box;
+            }
+            body{font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+                 font-size: 14px;
+                 line-height: 1.42857143;
+                 color: #333;
+                 background-color: #fff;
+            }
+
+            input{
+                font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+                font-size: 14px;
+                padding: 1px;
+                background-color: white;
+                border: 2px inset;
+                border-image-source: initial;
+                border-image-slice: initial;
+                border-image-width: initial;
+                border-image-outset: initial;
+                border-image-repeat: initial;
+                -webkit-rtl-ordering: logical;
+                -webkit-user-select: text;
+                cursor: auto;}
+            .K-Row{
+                position:relative;
+                display:table;
+                width:100%;
+                box-sizing: border-box;
+                left:0;right:0;
+
+            }
+            .K-Row:before{
+                /*display:table;*/
+                /*content:" "*/
+            }
+            .K-Row:after{
+                clear:both;
+            }
+            .K-Col_Wrap_768Px,.K-Col_Wrap_1024Px,.K-Col{
+                position:relative;
+                display:inline-block;
+                box-sizing:border-box;
+                float:left;
+
+                overflow:hidden;
+                min-height:1px;
+                line-height: 1.42857143;
+
+                /*-webkit-box-shadow: 5px 3px 3px 1px rgba(0,0,0,0.75);-moz-box-shadow: 5px 3px 3px 1px rgba(0,0,0,0.75);box-shadow: 5px 3px 3px 1px rgba(0,0,0,0.75);*/
+
+            }
+
+            /* a class for an additional row height filling div. Hidden when wrapped on smaller devices */
+            .K-Col_Wrap_1024Px_Border,.K-Col_Wrap_768Px_Border{
+                position:absolute;top:0;bottom:0;
+                /*-webkit-box-shadow: 5px 3px 3px 1px rgba(0,0,0,0.75);-moz-box-shadow: 5px 3px 3px 1px rgba(0,0,0,0.75);box-shadow: 5px 3px 3px 1px rgba(0,0,0,0.75);*/
+
+            }
+            .K-Row:last-child{
+                float:none
+            }
+            .K-Col:last-of-type,.K-Col_Wrap_768Px:last-of-type,.K-Col_Wrap_1024Px:last-of-type{
+                float:none;
+            }
+            @media (max-width:1024px){
+                .K-Col_Wrap_1024Px{
+                    width:100% !important
+                }
+                .K-Col_Wrap_1024Px_Border{
+                    visibility:hidden;
+                }
+            }
+            @media (max-width:768px){
+                .K-Col_Wrap_768Px{
+                    width:100% !important
+                }
+                .K-Col_Wrap_768Px_Border{
+                    visibility:hidden;
+                }
+            }
+
+            .K-Input{
+                position:relative;display:block;
+                width:140px;
+                border:1px solid #c0c0c0;
+                border-radius:3px;
+                background:#f5f5f5;padding:3px;height:28px;text-align: right
+            }
+            .K-Input:focus{
+                border:#00b0e8 1px solid; 
+                border-radius:3px;
+            }
+            /* --------------------------------------------------------------------------------------------------------------------------- */
+            /* Reset 
+            /* ----------------------------------------------------------------------------------------------------------------------------*/
+            //To remove ?X? from all search input fields in IE, simply add this to bottom of your css:
+            input::-ms-clear {display: none !important; width : 0 ; height: 0; }
+            input::-ms-reveal {display : none !important; width : 0; height: 0; }
+
+            //IE 11
+            ::-ms-clear { display: none; }
+            input[type="text"]::-ms-clear{display: none !important;}
+            //To remove ?X? from search input field on Chrome Browser (and all it?s mutations), simply add this to bottom of your css:
+            input[type="search"]::-webkit-search-decoration,
+            input[type="search"]::-webkit-search-cancel-button,
+            input[type="search"]::-webkit-search-results-button,
+            input[type="search"]::-webkit-search-results-decoration { display: none; }
+
+        </style>
+    </head>
+    <body style="margin:0;padding:0">
+        <div style="position:relative;border:1px solid yellow;top:0;right:0;left:0;height:100%" class="RowLayout">
+            <div class="K-Row" style="border:1px solid white;background:#005599">
+                <div class="K-Col_Wrap_1024Px" style="padding:10px;left:0;top:0;width:25%;background:#0055DD;">
+                    Row 1, Col 1<br>Height according to content<br><br><br>4 lines
+                </div>
+                <div class="K-Col_Wrap_1024Px" style="width:40%;padding:20px;border:3px solid red;background:greenyellow;">
+                    <!--<div class="Cell" style="position:absolute;left:0;top:0;bottom:0;right:0;display:run-in">-->
+                    Row 1, Col 2<br>Height according to content<br> here 3 lines
+                    <!--<div>-->
+                </div>
+                <div class="K-Col_Wrap_1024Px" style="width:35%;padding:10px;background:green;float:none;clear:both">
+                    Row 1, Col 3<br>Height according to content<br> here 3 lines<br> Last column must hava a float:none
+                </div>
+            </div>
+            <div class="K-Row" style="border:3px solid #b38969;background:#005599">
+                <div class="K-Col_Wrap_768Px" style="padding:10px;width:30%;background:#0055DD;">
+                    Row 1, Col 1<br>Height according to content<br><br><br>4 lines
+                    <img src="img/Africa.jpg" height="100" alt="Africa image" style="display:block;float:right"/>
+                </div>
+                <div class="K-Col_Wrap_768Px" style="width:40%;border:3px solid red;background:greenyellow;">
+                    <div class="K-Row" style="background:#ed89ff">
+                        <div class="Cell" style="position:relative;left:0;top:0;right:0;display:block;border:yellow 4px solid">
+                            Nested row layout<br>with height according to content<br> here 3 lines
+                        </div>
+                    </div>
+                    <div class="K-Row" style="background:#ed89ff;height:150px">
+                        <div class="Cell" style="position:absolute;left:10px;top:20px;height:100px;width:250px;display:block;border:yellow 4px solid">
+                            Absolute layout content. Height needs to be set on row container.
+                        </div>
+                    </div>
+                    <div class="K-Row" style="background:#ed89ff">
+                        <div class="Cell" style="position:relative;left:0;top:0;height:100px;right:0;display:block;border:yellow 4px solid">
+                            Row 1, Col 2<br>Height according to content<br> here 3 lines
+                        </div>
+                    </div>
+                </div>
+                <div class="K-Col_Wrap_768Px" style="width:30%;padding:3px;background:green">
+                    <div class="K-Row">
+                        <!-- border filling complete height -->
+                        <div class="K-Col_Wrap_768Px_Border" style="left:0%;width:30%;border:1px solid #a0a0a0;background:#005599"></div>
+                        <div class="K-Col_Wrap_768Px" style="width:30%;padding:10px">
+                            Inline cols Col 1/3<br>
+                            Height according to content<br> here 3 lines<br> Last column must hava a float:none which is set within css class
+                        </div>
+
+                        <div class="K-Col_Wrap_768Px" style="width:30%;padding:10px;background:#0055DD">
+                            Inline cols Col 2/3<br>
+                        </div>
+                        <!-- border filling complete height -->
+                        <div class="K-Col_Wrap_768Px_Border" style="left:30%;width:30%;border:1px solid #a0a0a0"></div>
+
+                        <div class="K-Col_Wrap_768Px" style="width:40%;padding:10px;background:#0066ff">
+                            Inline cols Col 3/3<br>
+                            Height according to content<br> here 3 lines<br> 
+                        </div>
+                        <!-- border filling complete height -->
+                        <div class="K-Col_Wrap_768Px_Border" style="left:60%;width:40%;border:1px solid #a0a0a0"></div>
+
+                    </div>
+                </div>
+                <div class="K-Row" style="height:200px;background:#0066ff">
+                    <div class="K-Col_Wrap_768Px" style="position:absolute;left:0;top:0;bottom:0;width:200px;padding:10px;background:#0066ff">
+                        Inline cols Col 3/3<br>
+                        Height according to content<br> here 3 lines<br>width:200px 
+                    </div>
+                    <div class="K-Col_Wrap_768Px" style="position:absolute;left:200px;right:0;top:0;bottom:0;padding:10px;background:#0066ff">
+                        Inline cols Col 3/3<br>
+                        Height according to content<br> here 3 lines<br> 
+                    </div>
+                </div>
+                <div class="K-Row" style="background:#ed89ff">
+                    <div style='position:relative;margin-left:-25%;left:50%;width:50%;border:1px red solid;text-align:center'>Row 3</div>
+                </div>
+                <div class="K-Row" style="background:#ed89ff">
+                    <div style='position:relative;margin-left:-100px;left:50%;width:200px;border:1px red solid;text-align:center'>Row 3</div>
+                </div>
+                <div class="K-Row" style="background:#ed89ff">
+                    <div style='position:relative;left:0;width:100%;border:1px red solid;text-align:center'>Row 3</div>
+                </div>
+                <div class="K-Row" style="background:#ed89ff">
+                    <div style='position:relative;margin-left:100%;left:-200px;width:200px;border:1px red solid;text-align:center'>Row with <br>right aligned box</div>
+                </div>
+                <div class="K-Row" style="background:#b38969">
+                    <div style="position:relative;margin-left:-100px;left:50%;width:200px;;box-sizing: border-box;border:1px red solid">
+                        <img src="img/Africa.jpg" width="200" alt="Africa image" style="display:block"/>
+                    </div>
+                </div>
+                <div class="K-Row" style="background:#b389F0">
+                    <img src="img/Africa.jpg" width="200" alt="Africa image" style="position:relative;margin-left:-100px;left:50%;width:200px;;box-sizing: border-box;border:1px red solid;display:block"/>
+                </div>
+                <div class="K-Row" style="background:#005599">
+                    <div style="position:relative;left:0;border:1px red solid;box-sizing: border-box">
+                        <img src="img/Africa.jpg" width="200" alt="Africa image" style="display:block"/>
+                    </div>
+                </div>
+                <div class="K-Row" style="background:#b38969">
+                    <div style="position:relative;margin-left:100%;left:-200px;width:200px;;box-sizing: border-box;border:1px red solid">
+                        <img src="img/Africa.jpg" width="200" alt="Africa image" style="display:block"/>
+                    </div>
+                </div>
+                <!-- Form -->
+                <div class="K-Row" style="background:#f0f0f0">
+                    <div class="K-Col" style="width:20%;padding:0">
+                        <div  style="position:relative;display:block;height:26px;padding:3px;margin-left:100%;left:-110px;width:100px;text-align: right">Date from</div> 
+                    </div>
+                    <div class="K-Col" style="padding:0">
+                        <input class="K-Input" type="date" id="dateFrom" value="2015-09-05" style=""/> 
+                    </div>
+                </div>
+                <div class="K-Row" style="background:#f0f0f0">
+                    <div class="K-Col" style="width:20%;padding:0">
+                        <div  style="position:relative;display:block;height:21px;padding:3px;margin-left:100%;left:-110px;width:100px;text-align: right">Date to</div> 
+                    </div> 
+                    <div class="K-Col" style="width:67%;padding:0">
+                        <input class="K-Input" type="text" id="dateTo" value="12.09.2015" /> 
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
